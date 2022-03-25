@@ -2,4 +2,79 @@
 
 {% block content %}
     <h1 style="text-align: center">{{title}}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+
+        <p class="form-block">
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control form-field") }}<br>
+            {% for error in form.name.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+
+        <p class="form-block">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control description form-field") }}<br>
+            {% for error in form.description.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+
+        <p class="form-block">
+            {{ form.age.label }}<br>
+            {{ form.age(class="form-control form-field") }}<br>
+            {% for error in form.age.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+
+        <p class="form-block">
+            {{ form.email.label }}<br>
+            {{ form.email(class="form-control form-field", type="email") }}<br>
+            {% for error in form.email.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        {% if title != "Изменить профиль" %}
+        <p class="form-block">
+            {{ form.password.label }}<br>
+            {{ form.password(class="form-control form-field", type="password") }}<br>
+            {% for error in form.password.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p class="form-block">
+            {{ form.password_again.label }}<br>
+            {{ form.password_again(class="form-control form-field", type="password") }}<br>
+            {% for error in form.password_again.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        {% endif %}
+        <p class="form-block">
+            {{ form.themes.label }}<br>
+            {{ form.themes(class="form-control form-field") }}<br>
+            {% for error in form.themes.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p class="form-button">{{ form.submit(type="submit", class="btn btn-primary button-submit") }}</p>
+        {{message}}
+    </form>
 {% endblock %}

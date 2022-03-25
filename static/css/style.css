@@ -1,0 +1,26 @@
+textarea.form-control{
+    height: 120px;
+}
+
+.form-field{
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-block {
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+}
+
+.form-button{
+    margin-left: auto;
+    margin-right: auto;
+    width: 100px;
+}
+
+.button-submit{
+    width: 100px;
+    font-size: 20px;
+}
