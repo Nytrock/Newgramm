@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1 style="text-align: center">{{title}}</h1>
-    <form action="" method="post">
+    <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
 
@@ -20,6 +20,16 @@
             {{ form.description.label }}<br>
             {{ form.description(class="form-control description form-field") }}<br>
             {% for error in form.description.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+
+        <p class="form-block">
+            {{ form.image.label }}<br>
+            {{ form.image(class="form-control form-field") }}<br>
+            {% for error in form.image.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}
                 </p>
@@ -74,7 +84,10 @@
                 </p>
             {% endfor %}
         </p>
-        <p class="form-button">{{ form.submit(type="submit", class="btn btn-primary button-submit") }}</p>
+        <div class="form-button">
+            <p class="btn">{{ form.submit(type="submit", class="btn btn-primary button-submit") }}</p>
+            <a class="btn btn-danger button-submit cancel" href="/profile">Отмена</a>
+        </div>
         {{message}}
     </form>
 {% endblock %}

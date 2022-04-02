@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -10,13 +10,20 @@
   <body>
     <header>
       <nav class="navbar navbar-light bg-light">
-          <h1>Newgramm</h1>
+          <h1 class="Title">Newgramm</h1>
           <h3><a class="navbar-brand" href="/">Лента</a></h3>
           <h3><a class="navbar-brand" href="/recommendations">Рекомендации</a></h3>
           <h3><a class="navbar-brand" href="/search">Поиск</a></h3>
           <h3><a class="navbar-brand" href="/create_post">Создать пост</a></h3>
         {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="/profile">Профиль</a>
+            <a class="navbar-brand" href="/profile">
+                {% if image%}
+                    <img class="round" src="{{url_for('static', filename=image)}}">
+                {% else %}
+                    <img class="round" src="static/img/users/{{current_user.id}}.jpg">
+                {% endif %}
+                {{ current_user.name }}
+            </a>
         {% else %}
             <p>
                 <a class="btn btn-primary " href="/registration">Регистрация</a>
@@ -25,7 +32,6 @@
         {% endif %}
       </nav>
     </header>
-    <!-- Begin page content -->
     <main role="main" class="container">
         {% block content %}{% endblock %}
     </main>

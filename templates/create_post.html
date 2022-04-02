@@ -1,5 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 style="text-align: center">Создание поста</h1>
+    <h1 style="text-align: center">{{title}}</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+
+        <p class="form-block">
+            {{ form.description.label }}<br>
+            {{ form.description(class="form-control description form-field") }}<br>
+            {% for error in form.description.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+
+        <p class="form-block">
+            {{ form.image.label }}<br>
+            {{ form.image(class="form-control form-field") }}<br>
+            {% for error in form.image.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p class="form-block">
+            {{ form.themes.label }}<br>
+            {{ form.themes(class="form-control form-field") }}<br>
+            {% for error in form.themes.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <div class="double-button">
+            <p class="btn">{{ form.submit(type="submit", class="btn btn-primary button-submit") }}</p>
+            {% if change %}
+                <a class="btn btn-danger button-submit cancel" href="/post_view/{{ post.id }}">Отмена</a>
+            {% else %}
+                <a class="btn btn-danger button-submit cancel" href="/">Отмена</a>
+            {% endif %}
+        </div>
+        {{message}}
+    </form>
 {% endblock %}

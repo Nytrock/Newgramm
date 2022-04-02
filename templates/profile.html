@@ -1,7 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 style="text-align: center">{{title}}</h1>
-    <h3><a class="navbar-brand" href="/profile/change">Изменить профиль</a></h3>
-    <a class="btn btn-danger" href="/logout">Выход</a>
+    <img class="profile-image" src="static/img/users/{{ current_user.id }}.jpg">
+    <h1 class="profile-name">{{ current_user.name }}</h1>
+    <h5 class="profile-description">{{ current_user.description }}</h5>
+    <h5 class="profile-text profile-post">Кол-во постов: {{ num_posts }}</h5>
+    <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
+    <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+    <a class="navbar-brand" href="/profile/change"><img src="static/img/site/Change.png" class="profile-icon first-profile-icon"></a>
+    <a class="navbar-brand" href="/delconfim_user"><img src="static/img/site/Trash.png" class="profile-icon second-profile-icon"></a>
+    <a class="navbar-brand" href="/logout"><img src="static/img/site/Exit.png" class="profile-icon third-profile-icon"></a>
+    <div class="post-profile">
+        {% for post in posts %}
+        <div class="block-profile">
+            <img src="static/img/posts/{{ post.id }}.jpg" class="image-newgram">
+            <a class="post-inf" href="/post_view/{{ post.id }}">
+                <img src="static/img/site/Like.png" class="inf-image inf-like">
+                <span class="like-font">{{ likes[post.id] }}</span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}

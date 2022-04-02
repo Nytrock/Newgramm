@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if prev %}
+        <a href="/post_find/{{ post.id }}/prev"><img class="arrow arrow-left" src="{{url_for('static', filename='/img/site/Left.png')}}"></a>
+    {% endif %}
+    {% if next %}
+        <a href="/post_find/{{ post.id }}/next"><img class="arrow arrow-right" src="{{url_for('static', filename='/img/site/Right.png')}}"></a>
+    {% endif %}
+    <div class="post-block-view">
+        <div class="post-header">
+            <a class="navbar-brand-post" href="/profile/{{ post.user_id }}">
+                <img class="round" src="{{url_for('static', filename=image)}}">
+            </a>
+            <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
+                {{ user.name }}
+            </a>
+        </div>
+        <a href="/profile/{{ post.user_id }}"><img class="round close-post" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
+        <img src="{{url_for('static', filename=image_post)}}" class="post-view">
+        <div class="post-bottom">
+            {% if current_user.id == post.user_id %}
+                <img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}">
+                <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>
+                <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
+            {% else %}
+                <a href=""><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
+            {% endif %}
+            <span class="text-post">{{ likes }} отметок "Нравится"</span>
+            <span class="text-post"> <span class="bold">{{ user.name }}</span> {{ post.description }}</span>
+        </div>
+    </div>
+
+{% endblock %}
