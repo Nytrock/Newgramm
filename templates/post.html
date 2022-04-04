@@ -10,7 +10,7 @@
     <div class="post-block-view">
         <div class="post-header">
             <a class="navbar-brand-post" href="/profile/{{ post.user_id }}">
-                <img class="round" src="{{url_for('static', filename=image)}}">
+                <img class="round" src="{{url_for('static', filename=user_image)}}">
             </a>
             <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
                 {{ user.name }}
@@ -20,11 +20,15 @@
         <img src="{{url_for('static', filename=image_post)}}" class="post-view">
         <div class="post-bottom">
             {% if current_user.id == post.user_id %}
-                <img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}">
+                <img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}">
                 <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>
                 <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
             {% else %}
-                <a href=""><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
+                {% if like %}
+                    <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}"></a>
+                {% else %}
+                    <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
+                {% endif %}
             {% endif %}
             <span class="text-post">{{ likes }} отметок "Нравится"</span>
             <span class="text-post"> <span class="bold">{{ user.name }}</span> {{ post.description }}</span>

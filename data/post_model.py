@@ -15,6 +15,7 @@ class Post(SqlAlchemyBase):
     publication_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     likes = sqlalchemy.Column(sqlalchemy.String, nullable=False, default=0)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    image = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     themes = orm.relation("Theme",
                           secondary="theme_post",
                           backref="post")

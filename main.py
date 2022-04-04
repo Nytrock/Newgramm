@@ -1,11 +1,9 @@
 import datetime
 import os
 
-from PIL import Image
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api, abort
-from werkzeug.utils import secure_filename
 
 from data import db_session
 from data.db_session import global_init
@@ -49,20 +47,30 @@ def search():
 @app.route('/profile')
 def profile():
     db_sess = db_session.create_session()
-    num_posts = len(db_sess.query(Post).filter(Post.user_id == current_user.id).all())
+    user = db_sess.query(User).filter(User.id == current_user.id).first()
     num_subscriptions = len(current_user.subscriptions.split(',')) - 1
     num_subscribers = len(current_user.subscribers.split(',')) - 1
     posts = db_sess.query(Post).filter(Post.user_id == current_user.id).all()
     num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
-    return render_template("profile.html", title="Профиль", num_posts=num_posts, num_subscriptions=num_subscriptions,
-                           num_subscribers=num_subscribers, posts=posts, likes=num_likes)
+    return render_template("profile.html", title="Профиль", num_subscriptions=num_subscriptions,
+                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
 
 
 @app.route('/profile/<int:id>')
 def profile_user(id):
     if id == current_user.id:
         return redirect('/profile')
-    return render_template("profile.html", title="Чужой профиль")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    num_subscriptions = len(user.subscriptions.split(',')) - 1
+    num_subscribers = len(user.subscribers.split(',')) - 1
+    posts = db_sess.query(Post).filter(Post.user_id == id).all()
+    num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
+    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
+                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
+                           image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
+                           show_button=me_subscribe)
 
 
 @app.route('/profile/change', methods=['GET', 'POST'])
@@ -93,7 +101,8 @@ def profile_change():
             f.save(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
         db_sess.commit()
         return redirect('/')
-    return render_template("register.html", title="Изменить профиль", form=form, image=f'/img/users/{ current_user.id}.jpg')
+    return render_template("register.html", title="Изменить профиль", form=form,
+                           image=f'/img/users/{current_user.id}.jpg')
 
 
 @app.route('/registration', methods=['GET', 'POST'])
@@ -154,14 +163,15 @@ def logout():
 def delconfirm_user():
     return render_template("delete.html", text=f"Нажмите сюда чтобы полностью и "
                                                f"безвозвратно удалить профиль {current_user.name}",
-                           title='Подтверждение', link='/', go='/delete_user', image=f'/img/users/{ current_user.id}.jpg')
+                           title='Подтверждение', link='/', go='/delete_user',
+                           image=f'/img/users/{current_user.id}.jpg')
 
 
 @app.route('/delconfim_post/<int:id>', methods=['GET', 'POST'])
 def delconfirm_post(id):
     return render_template("delete.html", text=f"Нажмите сюда, чтобы полностью и безвозвратно удалить выбранный пост",
                            title='Подтверждение', link=f'/post_view/{id}',
-                           go=f'/delete_post/{id}', image=f'/img/users/{ current_user.id}.jpg')
+                           go=f'/delete_post/{id}', image=f'/img/users/{current_user.id}.jpg')
 
 
 @app.route('/delete_user')
@@ -183,6 +193,7 @@ def create_post():
         post.publication_date = datetime.datetime.now()
         post.likes = ''
         post.description = form.description.data
+        post.image = f'/img/posts/{post.id}.jpg'
         db_sess = db_session.create_session()
         for i in form.themes.data:
             db_sess = db_session.create_session()
@@ -191,6 +202,9 @@ def create_post():
         db_sess.commit()
         f = form.image.data
         f.save(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        user.number_of_posts += 1
         db_sess.commit()
         return redirect('/')
     return render_template("create_post.html", title="Создать пост", form=form)
@@ -228,6 +242,8 @@ def news_delete(id):
     post = db_sess.query(Post).filter(Post.id == id, Post.user_id == current_user.id).first()
     if post:
         db_sess.delete(post)
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        user.number_of_posts -= 1
         db_sess.commit()
     else:
         abort(404)
@@ -256,14 +272,45 @@ def post_view(id):
     posts_user = db_sess.query(Post).filter(Post.user_id == user.id).all()
     Previous = True
     Next = True
+    Like = False
     if posts_user.index(post) == 0:
         Previous = False
     if posts_user.index(post) == len(posts_user) - 1:
         Next = False
+    if str(current_user.id) in post.likes.split(','):
+        Like = True
     num_likes = len(post.likes.split(',')) - 1
     return render_template("post.html", title="Просмотр поста", post=post, image_post=img,
-                           image=f'/img/users/{ current_user.id}.jpg', user=user, likes=num_likes, next=Next,
+                           image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
+                           user=user, likes=num_likes, next=Next, like=Like,
                            prev=Previous)
+
+
+@app.route('/like/<int:id>')
+def like(id):
+    db_sess = db_session.create_session()
+    post = db_sess.query(Post).filter(Post.id == id).first()
+    if str(current_user.id) in post.likes.split(','):
+        post.likes = post.likes.replace(f'{str(current_user.id)},', '')
+    else:
+        post.likes += f'{current_user.id},'
+    db_sess.commit()
+    return redirect(f'/post_view/{ id }')
+
+
+@app.route('/subscribe/<int:id>')
+def subscribe(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id).first()
+    me = db_sess.query(User).filter(current_user.id == User.id).first()
+    if f"{me.id}" not in user.subscribers.split(','):
+        me.subscriptions += f'{user.id},'
+        user.subscribers += f'{me.id},'
+    else:
+        me.subscriptions = me.subscriptions.replace(f'{user.id},', '')
+        user.subscribers = user.subscribers.replace(f'{me.id},', '')
+    db_sess.commit()
+    return redirect(f'/profile/{id}')
 
 
 if __name__ == '__main__':

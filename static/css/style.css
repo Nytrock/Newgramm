@@ -42,6 +42,8 @@ textarea.form-control{
     width: 50px;
     max-height: 50px;
     max-width: 50px;
+    min-height: 50px;
+    min-width: 50px;
     object-fit:cover;
 }
 
@@ -56,6 +58,8 @@ textarea.form-control{
     width: 200px;
     max-height: 200px;
     max-width: 200px;
+    min-height: 200px;
+    min-width: 200px;
     margin-left: 100px;
     margin-top: 30px;
     object-fit:cover;
@@ -262,4 +266,26 @@ textarea.form-control{
 
 .arrow-right{
     margin-left: 990px;
+}
+
+.btn-subscribe{
+    position: absolute;
+    margin-top: 50px;
+    margin-left: 470px;
+    color: #fff;
+}
+
+.btn-unsubscribe{
+    position: absolute;
+    margin-top: 50px;
+    margin-left: 470px;
+    color: #a5b7c7;
+    background-color: #d8e0e7;
+    border-color: #d8e0e7;
+}
+
+.btn-unsubscribe:hover{
+    color: #8f9daa;
+    background-color: #cad2d9;
+    border-color: #cad2d9;
 }
