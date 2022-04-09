@@ -34,7 +34,21 @@ def load_user(user_id):
 
 @app.route('/')
 def line():
-    return render_template("line.html", title="Лента", line=True)
+    t = 0
+    postt2 = []
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Post).all()
+    user = db_sess.query(User).get(current_user.id)
+    sub = user.subscriptions.split(',')[:-1]
+    for post in posts:
+        subss = post.user_id
+        if str(subss) in sub:
+            postt2.append(post)
+        post.user = db_sess.query(User).get(post.user_id)
+        post.get_likes = len(post.likes.split(',')) - 1
+        post.like = str(user.id) in post.likes.split(',')
+        t += 1
+    return render_template("line.html", title="Лента", posts=postt2, line=True)
 
 
 @app.route('/recommendations')
