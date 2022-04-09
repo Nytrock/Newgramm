@@ -15,10 +15,18 @@
             <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
                 {{ user.name }}
             </a>
+            {% if post.user_id != current_user.id %}
+                {% if show_button%}
+                    <a class="btn btn-primary btn-subscribe btn-subscribe-post-margin" href="/subscribe/post/{{ post.id }}"> Подписаться </a>
+                {% else %}
+                    <a class="btn btn-unsubscribe btn-subscribe-post-margin" href="/subscribe/post/{{ post.id }}"> Отписаться </a>
+                {% endif %}
+            {% endif %}
         </div>
         <a href="/profile/{{ post.user_id }}"><img class="round close-post" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
         <img src="{{url_for('static', filename=image_post)}}" class="post-view">
         <div class="post-bottom">
+            <span class="text-post post_date"> {{ show_date }} </span>
             {% if current_user.id == post.user_id %}
                 <img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}">
                 <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>

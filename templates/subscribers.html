@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if other %}
+        <h3 class="text-not-registrer">{{ title }}</h3>
+        <a href="/profile/{{ view.id }}"><img class="close-subs" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
+        <form method="post" action="">
+            <span class="sort-sub">{{ form.sorting(class="sort-field") }}</span>
+            <p class="btn">{{ form.submit(type="submit", class="btn btn-primary sort-btn") }}</p>
+        </form>
+        {% for user in users %}
+            <div>
+                {% if not user.sub and current_user.id != user.id %}
+                    <a class="btn btn-primary btn-subscribe btn-sub-margin"
+                       href="/subscribe-from-subs/{{ type }}/{{ view.id }}/{{ user.id }}"> Подписаться </a>
+                {% elif current_user.id != user.id %}
+                    <a class="btn btn-unsubscribe btn-sub-margin"
+                       href="/subscribe-from-subs/{{ type }}/{{ view.id }}/{{ user.id }}"> Отписаться </a>
+                {% endif %}
+                <a href="/profile/{{ user.id }}" class="href-round-sub">
+                    <img src="{{url_for('static', filename='img/users/{}.jpg'.format(user.id))}}" class="round-sub">
+                </a>
+                <a href="/profile/{{ user.id }}" class="href-black href-sub">{{user.name}}</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h3 class="text-not-registrer">{{ title }}</h3>
+        <a href="/profile/{{ current_user.id }}"><img class="close-subs" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
+        <form method="post" action="">
+            <span class="sort-sub">{{ form.sorting(class="sort-field") }}</span>
+            <p class="btn">{{ form.submit(type="submit", class="btn btn-primary sort-btn") }}</p>
+        </form>
+        {% for user in users %}
+            <div>
+                {% if not user.sub %}
+                    <a class="btn btn-primary btn-subscribe btn-sub-margin"
+                       href="/subscribe-from-subs/{{ type }}/{{ view.id }}/{{ user.id }}"> Подписаться </a>
+                {% else %}
+                    <a class="btn btn-unsubscribe btn-sub-margin"
+                       href="/subscribe-from-subs/{{ type }}/{{ view.id }}/{{ user.id }}"> Отписаться </a>
+                {% endif %}
+                <a href="/profile/{{ user.id }}" class="href-round-sub">
+                    <img src="{{url_for('static', filename='img/users/{}.jpg'.format(user.id))}}" class="round-sub">
+                </a>
+                <a href="/profile/{{ user.id }}" class="href-black href-sub">{{user.name}}</a>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

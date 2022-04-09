@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% if user_image%}
+    {% if user_image %}
         <img class="profile-image" src="{{url_for('static', filename=user_image)}}">
         <h1 class="profile-name">{{ user.name }}</h1>
-        {% if show_button%}
-            <a class="btn btn-primary btn-subscribe" href="/subscribe/{{ user.id }}"> Подписаться </a>
-        {% else %}
-            <a class="btn btn-unsubscribe" href="/subscribe/{{ user.id }}"> Отписаться </a>
+        {% if show_button and current_user.is_authenticated %}
+            <a class="btn btn-primary btn-subscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}"> Подписаться </a>
+        {% elif current_user.is_authenticated %}
+            <a class="btn btn-unsubscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}"> Отписаться </a>
         {% endif %}
         <h5 class="profile-description">{{ user.description }}</h5>
         <h5 class="profile-text profile-post">Кол-во постов: {{ user.number_of_posts }}</h5>
-        <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
-        <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+        <a href="/view_users/{{ user.id }}/subscriptions" class="href-black">
+            <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
+        </a>
+        <a href="/view_users/{{ user.id }}/subscribers" class="href-black">
+            <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+        </a>
         <div class="post-profile">
             {% for post in posts %}
             <div class="block-profile">
-                <img src="{{url_for('static', filename=post.image)}}" class="image-newgram">
+                <img src="{{url_for('static', filename='img/posts/{}.jpg'.format(post.id))}}" class="image-newgram">
                 <a class="post-inf" href="/post_view/{{ post.id }}">
                     <img src="{{url_for('static', filename='img/site/Like.png')}}" class="inf-image inf-like">
                     <span class="like-font">{{ likes[post.id] }}</span>
@@ -24,13 +28,17 @@
             </div>
             {% endfor %}
         </div>
-    {% else %}
+    {% elif current_user.is_authenticated  %}
         <img class="profile-image" src="static/img/users/{{ current_user.id }}.jpg">
         <h1 class="profile-name">{{ user.name }}</h1>
         <h5 class="profile-description">{{ user.description }}</h5>
         <h5 class="profile-text profile-post">Кол-во постов: {{ user.number_of_posts }}</h5>
-        <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
-        <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+        <a href="/view_users/{{ current_user.id }}/subscriptions" class="href-black">
+            <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
+        </a>
+        <a href="/view_users/{{ current_user.id }}/subscribers" class="href-black">
+            <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+        </a>
         <a class="navbar-brand" href="/profile/change"><img src="static/img/site/Change.png" class="profile-icon first-profile-icon"></a>
         <a class="navbar-brand" href="/delconfim_user"><img src="static/img/site/Trash.png" class="profile-icon second-profile-icon"></a>
         <a class="navbar-brand" href="/logout"><img src="static/img/site/Exit.png" class="profile-icon third-profile-icon"></a>
@@ -45,5 +53,7 @@
             </div>
             {% endfor %}
         </div>
+    {% else %}
+        <h1 class="text-not-registrer">Войдите или зарегистрируйтесь чтобы получить доступ к своему профилю</h1>
     {% endif %}
 {% endblock %}

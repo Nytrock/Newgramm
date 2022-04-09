@@ -14,6 +14,9 @@ from data.register import RegisterForm
 from data.login import LoginForm
 from data.change import ChangeForm
 from data.create_post import PostForm
+from data.sorting import SortForm
+from data.API import user_resources
+from data.API import post_resources
 
 app = Flask(__name__)
 api = Api(app)
@@ -31,46 +34,66 @@ def load_user(user_id):
 
 @app.route('/')
 def line():
-    return render_template("line.html", title="Лента")
+    return render_template("line.html", title="Лента", line=True)
 
 
 @app.route('/recommendations')
 def recommendations():
-    return render_template("recommendations.html", title="Рекомендации")
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Post).all()
+    user = db_sess.query(User).get(current_user.id)
+    user_tags = set(map(lambda x: x.id, user.themes))
+    for post in posts:
+        tags = set(map(lambda x: x.id, post.themes))
+        post.connection = len(user_tags) - len(list(user_tags - tags))
+        post.user = db_sess.query(User).get(post.user_id)
+        post.get_likes = len(post.likes.split(',')) - 1
+        post.like = str(user.id) in post.likes.split(',')
+    posts.sort(key=lambda x: x.connection, reverse=True)
+    return render_template("recommendations.html", title="Рекомендации", posts=posts, recommend=True)
 
 
 @app.route('/search')
 def search():
-    return render_template("search.html", title="Поиск")
+    return render_template("search.html", title="Поиск", search=True)
 
 
 @app.route('/profile')
 def profile():
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == current_user.id).first()
-    num_subscriptions = len(current_user.subscriptions.split(',')) - 1
-    num_subscribers = len(current_user.subscribers.split(',')) - 1
-    posts = db_sess.query(Post).filter(Post.user_id == current_user.id).all()
-    num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
-    return render_template("profile.html", title="Профиль", num_subscriptions=num_subscriptions,
-                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
+    if current_user.is_authenticated:
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == current_user.id).first()
+        num_subscriptions = len(current_user.subscriptions.split(',')) - 1
+        num_subscribers = len(current_user.subscribers.split(',')) - 1
+        posts = db_sess.query(Post).filter(Post.user_id == current_user.id).all()
+        num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
+        return render_template("profile.html", title="Профиль", num_subscriptions=num_subscriptions,
+                               num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
+    return render_template("profile.html", title="Профиль")
 
 
 @app.route('/profile/<int:id>')
 def profile_user(id):
-    if id == current_user.id:
-        return redirect('/profile')
+    if current_user.is_authenticated:
+        if id == current_user.id:
+            return redirect('/profile')
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == id).first()
     num_subscriptions = len(user.subscriptions.split(',')) - 1
     num_subscribers = len(user.subscribers.split(',')) - 1
     posts = db_sess.query(Post).filter(Post.user_id == id).all()
     num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
-    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    me_subscribe = current_user.is_authenticated
+    if me_subscribe:
+        me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    if current_user.is_authenticated:
+        return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
+                               num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
+                               image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
+                               show_button=me_subscribe)
     return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
                            num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
-                           image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
-                           show_button=me_subscribe)
+                           user_image=f'/img/users/{user.id}.jpg')
 
 
 @app.route('/profile/change', methods=['GET', 'POST'])
@@ -102,7 +125,7 @@ def profile_change():
         db_sess.commit()
         return redirect('/')
     return render_template("register.html", title="Изменить профиль", form=form,
-                           image=f'/img/users/{current_user.id}.jpg')
+                           image=f'/img/users/{current_user.id}.jpg', change=True)
 
 
 @app.route('/registration', methods=['GET', 'POST'])
@@ -126,7 +149,6 @@ def registration():
         user.subscribers = ''
 
         for i in form.themes.data:
-            db_sess = db_session.create_session()
             user.themes.append(db_sess.query(Theme).filter(Theme.id == i).first())
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -179,8 +201,27 @@ def delete():
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
     logout_user()
+    for i in user.subscribers.split(','):
+        if i != '':
+            sub = db_sess.query(User).get(int(i))
+            list_ = sub.subscriptions.split(',')
+            list_.remove(str(user.id))
+            sub.subscriptions = ','.join(list_)
+            db_sess.commit()
+    for i in user.subscriptions.split(','):
+        if i != '':
+            sub = db_sess.query(User).get(int(i))
+            list_ = sub.subscribers.split(',')
+            list_.remove(str(user.id))
+            sub.subscribers = ','.join(list_)
+            db_sess.commit()
+    posts = db_sess.query(Post).filter(Post.user_id == current_user.id)
+    for post in posts:
+        os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        db_sess.delete(post)
     db_sess.delete(user)
     db_sess.commit()
+    os.remove(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
     return redirect('/')
 
 
@@ -193,7 +234,6 @@ def create_post():
         post.publication_date = datetime.datetime.now()
         post.likes = ''
         post.description = form.description.data
-        post.image = f'/img/posts/{post.id}.jpg'
         db_sess = db_session.create_session()
         for i in form.themes.data:
             db_sess = db_session.create_session()
@@ -207,7 +247,7 @@ def create_post():
         user.number_of_posts += 1
         db_sess.commit()
         return redirect('/')
-    return render_template("create_post.html", title="Создать пост", form=form)
+    return render_template("create_post.html", title="Создать пост", form=form, create=True)
 
 
 @app.route('/change_post/<int:id>', methods=['GET', 'POST'])
@@ -241,6 +281,7 @@ def news_delete(id):
     db_sess = db_session.create_session()
     post = db_sess.query(Post).filter(Post.id == id, Post.user_id == current_user.id).first()
     if post:
+        os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         db_sess.delete(post)
         user = db_sess.query(User).filter(User.id == current_user.id).first()
         user.number_of_posts -= 1
@@ -280,10 +321,21 @@ def post_view(id):
     if str(current_user.id) in post.likes.split(','):
         Like = True
     num_likes = len(post.likes.split(',')) - 1
+    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    date = post.publication_date
+    today = datetime.datetime.now()
+    yesterday = post.publication_date - datetime.timedelta(days=1)
+    if date.year == today.year and date.month == today.month and date.day == today.day:
+        show_date = "Сегодня " + date.strftime("%H:%M")
+    elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+        show_date = "Вчера " + date.strftime("%H:%M")
+    else:
+        show_date = date.strftime("%d %B %H:%M")
+
     return render_template("post.html", title="Просмотр поста", post=post, image_post=img,
                            image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
                            user=user, likes=num_likes, next=Next, like=Like,
-                           prev=Previous)
+                           prev=Previous, show_button=me_subscribe, show_date=show_date)
 
 
 @app.route('/like/<int:id>')
@@ -295,14 +347,18 @@ def like(id):
     else:
         post.likes += f'{current_user.id},'
     db_sess.commit()
-    return redirect(f'/post_view/{ id }')
+    return redirect(f'/post_view/{id}')
 
 
-@app.route('/subscribe/<int:id>')
-def subscribe(id):
+@app.route('/subscribe/<string:typ>/<int:id>')
+def subscribe(typ, id):
     db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.id == id).first()
-    me = db_sess.query(User).filter(current_user.id == User.id).first()
+    if typ == "profile":
+        user = db_sess.query(User).get(id)
+    elif typ == "post":
+        post = db_sess.query(Post).get(id)
+        user = db_sess.query(User).get(post.user_id)
+    me = db_sess.query(User).get(current_user.id)
     if f"{me.id}" not in user.subscribers.split(','):
         me.subscriptions += f'{user.id},'
         user.subscribers += f'{me.id},'
@@ -310,8 +366,71 @@ def subscribe(id):
         me.subscriptions = me.subscriptions.replace(f'{user.id},', '')
         user.subscribers = user.subscribers.replace(f'{me.id},', '')
     db_sess.commit()
-    return redirect(f'/profile/{id}')
+    if typ == "profile":
+        return redirect(f'/profile/{id}')
+    return redirect(f'/post_view/{post.id}')
+
+
+@app.route('/subscribe-from-subs/<string:typ>/<int:from_id>/<int:id>')
+def subscribe_subs(typ, from_id, id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(id)
+    me = db_sess.query(User).get(current_user.id)
+    if f"{me.id}" not in user.subscribers.split(','):
+        me.subscriptions += f'{user.id},'
+        user.subscribers += f'{me.id},'
+    else:
+        me.subscriptions = me.subscriptions.replace(f'{user.id},', '')
+        user.subscribers = user.subscribers.replace(f'{me.id},', '')
+    db_sess.commit()
+    if typ == "subscribers":
+        return redirect(f"/view_users/{ from_id }/subscribers")
+    return redirect(f'/view_users/{ from_id }/subscriptions')
+
+
+@app.route('/view_users/<int:id>/<string:typ>', methods=['GET', 'POST'])
+def view_users(id, typ):
+
+    db_sess = db_session.create_session()
+    form = SortForm(sorting=0)
+    form.sorting.choices = [(0, "Не выбрано"), (1, "По имени"), (2, "По возрасту"), (3, "По кол-ву подписчиков"),
+                             (4, "По кол-ву подписок")]
+    user = db_sess.query(User).get(id)
+    other = current_user.id != id
+    sl = {"subscribers": f"Подписчики {user.name}",
+          "subscriptions": f"Подписки {user.name}"}
+    users = []
+    if typ == "subscribers":
+        for i in user.subscribers.split(","):
+            if i != '':
+                users.append(db_sess.query(User).get(int(i)))
+    else:
+        for i in user.subscriptions.split(","):
+            if i != '':
+                users.append(db_sess.query(User).get(int(i)))
+    if request.method == 'POST':
+        if form.sorting.data == 1:
+            users.sort(key=lambda x: x.name)
+        elif form.sorting.data == 2:
+            users.sort(key=lambda x: x.age, reverse=True)
+        elif form.sorting.data == 3:
+            users.sort(key=lambda x: len(x.subscribers.split(',')))
+        elif form.sorting.data == 3:
+            users.sort(key=lambda x: len(x.subscriptions.split(',')))
+    name = sl[typ]
+    for i in users:
+        i.sub = str(i.id) in current_user.subscriptions.split(',')
+    return render_template("subscribers.html", title=name, users=users,
+                           image=f'/img/users/{current_user.id}.jpg', view=user, type=typ, other=other, form=form)
 
 
 if __name__ == '__main__':
+    api.add_resource(user_resources.UsersListResource, '/api/users')
+    api.add_resource(user_resources.UsersResource, '/api/users/<int:user_id>')
+    api.add_resource(user_resources.UsersDelete, '/api/users/<int:user_id>/<string:password>')
+
+    api.add_resource(post_resources.PostsListResource, '/api/posts')
+    api.add_resource(post_resources.PostsResource, '/api/posts/<int:post_id>')
+    api.add_resource(post_resources.PostsDelete, '/api/posts/<int:post_id>/<string:password>')
+
     app.run(port=8080, host='127.0.0.1')

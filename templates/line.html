@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 style="text-align: center">Лента</h1>
+    {% if current_user.is_authenticated %}
+        <h1 style="text-align: center">Лента</h1>
+    {% else %}
+        <h2 class="text-not-registrer">Зарегистрируйтесь или
+            войдите чтобы смотреть ленту постов ваших любимых авторов</h2>
+    {% endif %}
 {% endblock %}

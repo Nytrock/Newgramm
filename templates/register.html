@@ -86,7 +86,11 @@
         </p>
         <div class="form-button">
             <p class="btn">{{ form.submit(type="submit", class="btn btn-primary button-submit") }}</p>
-            <a class="btn btn-danger button-submit cancel" href="/profile">Отмена</a>
+            {% if change%}
+                <a class="btn btn-danger button-submit cancel" href="/profile">Отмена</a>
+            {% else %}
+                <a class="btn btn-danger button-submit cancel" href="/">Отмена</a>
+            {% endif %}
         </div>
         {{message}}
     </form>

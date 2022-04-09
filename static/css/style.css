@@ -1,11 +1,17 @@
 @font-face {
 	font-family: 'Title';
 	src: local('Title'),
-		url(../fonts/billlabong.otf);
+		url(../fonts/billabong.otf);
 }
+
 
 .Title{
 	font-family: "Title";
+	width: 200px;
+	display: block;
+	margin-left: 50px;
+	margin-top: 10px;
+	bottom: 0;
 }
 
 textarea.form-control{
@@ -270,15 +276,11 @@ textarea.form-control{
 
 .btn-subscribe{
     position: absolute;
-    margin-top: 50px;
-    margin-left: 470px;
     color: #fff;
 }
 
 .btn-unsubscribe{
     position: absolute;
-    margin-top: 50px;
-    margin-left: 470px;
     color: #a5b7c7;
     background-color: #d8e0e7;
     border-color: #d8e0e7;
@@ -288,4 +290,174 @@ textarea.form-control{
     color: #8f9daa;
     background-color: #cad2d9;
     border-color: #cad2d9;
+}
+
+.btn-subscribe-margin{
+    margin-top: 50px;
+    margin-left: 470px;
+}
+
+.btn-subscribe-post-margin{
+    margin-top: -43px;
+    margin-left: 600px;
+}
+
+.btn-subscribe-recom-margin{
+    margin-top: -43px;
+    margin-left: 670px;
+}
+
+.post_date{
+    position: absolute;
+    margin-left: 680px;
+}
+
+.delete{
+    margin-left: 300px;
+    margin-top: 100px;
+    position: absolute;
+}
+.delete-no{
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    margin-left: 550px;
+    margin-top: 150px;
+}
+
+.text-not-registrer{
+    text-align: center;
+    margin-top: 50px;
+    width: 900px;
+    margin-left: 150px;
+}
+
+.href-black{
+    color: black;
+}
+
+.href-black:hover{
+    color: #4f4f4f;
+    text-decoration: none;
+}
+
+.round-sub{
+    border-radius: 100px;
+    box-shadow: 0 0 7px #666
+    height: 70px;
+    width: 70px;
+    max-height: 70px;
+    max-width: 70px;
+    min-height: 70px;
+    min-width: 70px;
+    object-fit:cover;
+    margin-left: 380px;
+    margin-top: 10px;
+
+}
+
+.href-round-sub:hover{
+    text-decoration: none;
+}
+
+.href-sub{
+    font-size: 25px;
+    position: absolute;
+    margin-top: 25px;
+    margin-left: 10px;
+}
+
+.close-subs{
+    height: 30px;
+    weight: auto;
+    margin-left: 880px;
+    margin-top: -37px;
+    position: absolute;
+}
+
+.btn-sub-margin{
+    margin-top: 30px;
+    margin-left: 800px;
+}
+
+.choice-title:after{
+	content: "";
+	height: 5%;
+	bottom: 0;
+	position: absolute;
+	background-color: black;
+}
+
+.line-title::after{
+	margin-left: -75px;
+	width: 170px;
+}
+
+.recommend-title::after{
+	margin-left: -110px;
+	width: 250px;
+}
+
+.search-title::after{
+	margin-left: -70px;
+	width: 160px;
+}
+
+.create-title::after{
+	margin-left: -110px;
+	width: 240px;
+}
+
+.base-title{
+    width: 200px;
+    text-align: center;
+}
+
+.logo-base{
+    width: 50px;
+    height: auto;
+    position: absolute;
+}
+
+.base-font{
+    font-size: 30px;
+    display: block;
+}
+
+.logo-line{
+    margin-left: 50px;
+    width: 25px;
+    margin-top: 5px;
+}
+
+.logo-recommend{
+    margin-left: 110px;
+    width: 25px;
+    margin-top: 5px;
+}
+
+.logo-search{
+    margin-left: 50px;
+    width: 25px;
+    margin-top: 10px;
+}
+
+.logo-create{
+    margin-left: 95px;
+    width: 25px;
+    margin-top: 5px;
+}
+
+.sort-sub{
+    margin-left: 380px;
+    height: 50px;
+    top: 0;
+}
+
+.sort-field{
+    height: 40px;
+}
+
+.sort-btn{
+    margin-top: 10px;
 }

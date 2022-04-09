@@ -1,5 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 style="text-align: center">Рекомендации</h1>
+    {% if current_user.is_authenticated %}
+        {% for post in posts %}
+            <div class="post-block-view">
+                <div class="post-header">
+                    <a class="navbar-brand-post" href="/profile/{{ post.user_id }}">
+                        <img class="round" src="{{url_for('static', filename='/img/users/{}.jpg'.format(post.user_id))}}">
+                    </a>
+                    <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
+                        {{ post.user.name }}
+                    </a>
+                    {% if post.user_id != current_user.id %}
+                        {% if show_button%}
+                            <a class="btn btn-primary btn-subscribe btn-subscribe-recom-margin" href="/subscribe/post/{{ post.id }}"> Подписаться </a>
+                        {% else %}
+                            <a class="btn btn-unsubscribe btn-subscribe-recom-margin" href="/subscribe/post/{{ post.id }}"> Отписаться </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <a href="/post_view/{{ post.id }}"><img src="{{url_for('static', filename='/img/posts/{}.jpg'.format(post.id))}}" class="post-view"></a>
+                <div class="post-bottom">
+                    <span class="text-post post_date"> {{ show_date }} </span>
+                    {% if current_user.id == post.user_id %}
+                        <img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}">
+                        <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>
+                        <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
+                    {% else %}
+                        {% if post.like %}
+                            <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}"></a>
+                        {% else %}
+                            <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
+                        {% endif %}
+                    {% endif %}
+                    <span class="text-post">{{ post.get_likes }} отметок "Нравится"</span>
+                    <span class="text-post"> <span class="bold">{{ post.user.name }}</span> {{ post.description }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h2 class="text-not-registrer">Зарегистрируйтесь или
+            войдите чтобы смотреть рекомндованные вам посты</h2>
+    {% endif %}
 {% endblock %}
