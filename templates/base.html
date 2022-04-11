@@ -41,12 +41,12 @@
           {% endif %}
 
           {% if search %}
-              <div class="base-title choice-title search-title"><a class="navbar-brand base-font" href="/search">
+              <div class="base-title choice-title search-title"><a class="navbar-brand base-font" href="/search/_/0">
                 <img src="{{url_for('static', filename='img/site/Search.png')}}" class="logo-search logo-base">
                 <h3>Поиск</h3>
               </a></div>
           {% else %}
-              <div class="base-title"><a class="navbar-brand base-font" href="/search">
+              <div class="base-title"><a class="navbar-brand base-font" href="/search/_/0">
                 <img src="{{url_for('static', filename='img/site/Search.png')}}" class="logo-search logo-base">
                 <h3>Поиск</h3>
               </a></div>
@@ -65,11 +65,7 @@
           {% endif %}
         {% if current_user.is_authenticated %}
             <a class="navbar-brand " href="/profile">
-                {% if image%}
-                    <img class="round" src="{{url_for('static', filename=image)}}">
-                {% else %}
-                    <img class="round" src="static/img/users/{{current_user.id}}.jpg">
-                {% endif %}
+                <img class="round" src="{{url_for('static', filename='img/users/{}.jpg'.format(current_user.id))}}">
                 {{ current_user.name }}
             </a>
         {% else %}

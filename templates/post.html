@@ -2,29 +2,29 @@
 
 {% block content %}
     {% if prev %}
-        <a href="/post_find/{{ post.id }}/prev"><img class="arrow arrow-left" src="{{url_for('static', filename='/img/site/Left.png')}}"></a>
+        <a href={{prev_href}}><img class="arrow arrow-left" src="{{url_for('static', filename='/img/site/Left.png')}}"></a>
     {% endif %}
     {% if next %}
-        <a href="/post_find/{{ post.id }}/next"><img class="arrow arrow-right" src="{{url_for('static', filename='/img/site/Right.png')}}"></a>
+        <a href={{next_href}}><img class="arrow arrow-right" src="{{url_for('static', filename='/img/site/Right.png')}}"></a>
     {% endif %}
     <div class="post-block-view">
         <div class="post-header">
             <a class="navbar-brand-post" href="/profile/{{ post.user_id }}">
-                <img class="round" src="{{url_for('static', filename=user_image)}}">
+                <img class="round" src="{{url_for('static', filename='/img/users/{}.jpg'.format(user.id))}}">
             </a>
             <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
                 {{ user.name }}
             </a>
             {% if post.user_id != current_user.id %}
                 {% if show_button%}
-                    <a class="btn btn-primary btn-subscribe btn-subscribe-post-margin" href="/subscribe/post/{{ post.id }}"> Подписаться </a>
+                    <a class="btn btn-primary btn-subscribe btn-subscribe-post-margin" href="/subscribe/{{ where_like }}/{{ post.id }}"> Подписаться </a>
                 {% else %}
-                    <a class="btn btn-unsubscribe btn-subscribe-post-margin" href="/subscribe/post/{{ post.id }}"> Отписаться </a>
+                    <a class="btn btn-unsubscribe btn-subscribe-post-margin" href="/subscribe/{{ where_like }}/{{ post.id }}"> Отписаться </a>
                 {% endif %}
             {% endif %}
         </div>
-        <a href="/profile/{{ post.user_id }}"><img class="round close-post" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
-        <img src="{{url_for('static', filename=image_post)}}" class="post-view">
+        <a href={{close_href}}><img class="round close-post" src="{{url_for('static', filename='img/site/Close.png')}}"></a>
+        <img src="{{url_for('static', filename='/img/posts/{}.jpg'.format(post.id))}}" class="post-view">
         <div class="post-bottom">
             <span class="text-post post_date"> {{ show_date }} </span>
             {% if current_user.id == post.user_id %}
@@ -33,9 +33,9 @@
                 <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
             {% else %}
                 {% if like %}
-                    <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}"></a>
+                    <a href="/like/{{ post.id }}/{{where_like}}"><img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}"></a>
                 {% else %}
-                    <a href="/like/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
+                    <a href="/like/{{ post.id }}/{{where_like}}"><img class="button-post" src="{{url_for('static', filename='/img/site/LikeNot_post.png')}}"></a>
                 {% endif %}
             {% endif %}
             <span class="text-post">{{ likes }} отметок "Нравится"</span>

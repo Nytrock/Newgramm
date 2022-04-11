@@ -1,5 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 style="text-align: center">Поиск</h1>
+    <h1 style="text-align: center">Найти пользователя</h1>
+    <form method="post" action="" class="search">
+        <span class="text-search">{{ form.types.label }}</span>
+        <span>{{ form.types(class="text-search") }}</span>
+        <span>{{ form.name(class="search-field") }}</span>
+        <span class="btn search-btn-div">{{ form.submit(type="submit", class="btn btn-primary search-btn") }}</span>
+    </form>
+    <span class="search-message"> {{ message }}</span>
+    {% for user in users %}
+        <div class="search-block">
+            {% if user.sub %}
+                <a class="btn btn-primary btn-subscribe btn-sub-margin"
+                   href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Подписаться </a>
+            {% else %}
+                <a class="btn btn-unsubscribe btn-sub-margin"
+                   href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Отписаться </a>
+            {% endif %}
+            <a href="/profile/{{ user.id }}" class="href-round-sub">
+                <img src="{{url_for('static', filename='img/users/{}.jpg'.format(user.id))}}" class="round-sub">
+            </a>
+            <a href="/profile/{{ user.id }}" class="href-black href-sub">{{user.name}}</a>
+        </div>
+    {% endfor %}
 {% endblock %}

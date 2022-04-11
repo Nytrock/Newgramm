@@ -15,6 +15,7 @@ from data.login import LoginForm
 from data.change import ChangeForm
 from data.create_post import PostForm
 from data.sorting import SortForm
+from data.search import SearchForm
 from data.API import user_resources
 from data.API import post_resources
 
@@ -32,30 +33,186 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-@app.route('/')
+def make_line():
+    final_posts = []
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
+    user_subs = user.subscriptions.split(',')
+    posts = db_sess.query(Post).filter(Post.user_id != current_user.id).all()
+    for post in posts:
+        another = db_sess.query(User).get(post.user_id)
+        if str(another.id) in user_subs:
+            post.user = db_sess.query(User).get(post.user_id)
+            post.get_likes = len(post.likes.split(',')) - 1
+            post.like = str(user.id) in post.likes.split(',')
+            date = post.publication_date
+            today = datetime.datetime.now()
+            yesterday = post.publication_date - datetime.timedelta(days=1)
+            if date.year == today.year and date.month == today.month and date.day == today.day:
+                post.date = "Сегодня " + date.strftime("%H:%M")
+            elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+                post.date = "Вчера " + date.strftime("%H:%M")
+            else:
+                post.date = date.strftime("%d %B %H:%M")
+            final_posts.append(post)
+    final_posts.sort(key=lambda x: x.publication_date, reverse=True)
+    return final_posts
+
+
+@app.route('/', methods=['GET', 'POST'])
 def line():
-    return render_template("line.html", title="Лента", line=True)
+    form = SortForm()
+    form.sorting.choices = [(0, "Не выбрано"), (1, "По дате выкладывания"), (2, "По популярности")]
+    if current_user.is_authenticated:
+        posts = make_line()
+    else:
+        posts = []
+
+    if request.method == 'POST':
+        if form.sorting.data == 1:
+            posts.sort(key=lambda x: x.publication_date, reverse=True)
+        elif form.sorting.data == 2:
+            posts.sort(key=lambda x: len(x.likes.split(',')), reverse=True)
+    return render_template("line.html", title="Лента", line=True, posts=posts, form=form)
+
+
+@app.route('/line_view/<int:id>')
+def line_view(id):
+    posts = list(map(lambda x: x.id, make_line()))
+    db_sess = db_session.create_session()
+    post = db_sess.query(Post).get(id)
+    index = posts.index(id)
+    user = db_sess.query(User).filter(User.id == post.user_id).first()
+    Previous = index != 0
+    Next = index != len(posts) - 1
+    Like = str(current_user.id) in post.likes.split(',')
+    num_likes = len(post.likes.split(',')) - 1
+    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    date = post.publication_date
+    today = datetime.datetime.now()
+    yesterday = post.publication_date - datetime.timedelta(days=1)
+    if date.year == today.year and date.month == today.month and date.day == today.day:
+        show_date = "Сегодня " + date.strftime("%H:%M")
+    elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+        show_date = "Вчера " + date.strftime("%H:%M")
+    else:
+        show_date = date.strftime("%d %B %H:%M")
+
+    return render_template("post.html", title="Просмотр поста", post=post, like=Like,
+                           user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_line",
+                           prev=Previous, prev_href=f"/post_find/{post.id}/prev_line",
+                           show_button=me_subscribe, show_date=show_date, where_like="line",
+                           close_href="/", line=True)
+
+
+def make_recommendations():
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(current_user.id)
+    user_subs = user.subscriptions.split(',')
+    posts = db_sess.query(Post).filter(Post.user_id != current_user.id).all()
+    final_posts = []
+    user_tags = set(map(lambda x: x.id, user.themes))
+    for post in posts:
+        another = db_sess.query(User).get(post.user_id)
+        if str(another.id) not in user_subs:
+            post.sub = f"{user.id}" not in another.subscribers.split(',')
+            tags = set(map(lambda x: x.id, post.themes))
+            post.connection = len(user_tags) - len(list(user_tags - tags))
+            post.user = db_sess.query(User).get(post.user_id)
+            post.get_likes = len(post.likes.split(',')) - 1
+            post.like = str(user.id) in post.likes.split(',')
+            date = post.publication_date
+            today = datetime.datetime.now()
+            yesterday = post.publication_date - datetime.timedelta(days=1)
+            if date.year == today.year and date.month == today.month and date.day == today.day:
+                post.date = "Сегодня " + date.strftime("%H:%M")
+            elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+                post.date = "Вчера " + date.strftime("%H:%M")
+            else:
+                post.date = date.strftime("%d %B %H:%M")
+            final_posts.append(post)
+
+    final_posts.sort(key=lambda x: (x.connection, x.publication_date), reverse=True)
+    return final_posts
 
 
 @app.route('/recommendations')
 def recommendations():
-    db_sess = db_session.create_session()
-    posts = db_sess.query(Post).all()
-    user = db_sess.query(User).get(current_user.id)
-    user_tags = set(map(lambda x: x.id, user.themes))
-    for post in posts:
-        tags = set(map(lambda x: x.id, post.themes))
-        post.connection = len(user_tags) - len(list(user_tags - tags))
-        post.user = db_sess.query(User).get(post.user_id)
-        post.get_likes = len(post.likes.split(',')) - 1
-        post.like = str(user.id) in post.likes.split(',')
-    posts.sort(key=lambda x: x.connection, reverse=True)
+    if current_user.is_authenticated:
+        posts = make_recommendations()
+    else:
+        posts = []
     return render_template("recommendations.html", title="Рекомендации", posts=posts, recommend=True)
 
 
-@app.route('/search')
-def search():
-    return render_template("search.html", title="Поиск", search=True)
+@app.route('/recommendations_view/<int:id>')
+def recommendations_view(id):
+    posts = list(map(lambda x: x.id, make_recommendations()))
+    db_sess = db_session.create_session()
+    post = db_sess.query(Post).get(id)
+    index = posts.index(id)
+    user = db_sess.query(User).filter(User.id == post.user_id).first()
+    Previous = index != 0
+    Next = index != len(posts) - 1
+    Like = str(current_user.id) in post.likes.split(',')
+    num_likes = len(post.likes.split(',')) - 1
+    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
+    date = post.publication_date
+    today = datetime.datetime.now()
+    yesterday = post.publication_date - datetime.timedelta(days=1)
+    if date.year == today.year and date.month == today.month and date.day == today.day:
+        show_date = "Сегодня " + date.strftime("%H:%M")
+    elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+        show_date = "Вчера " + date.strftime("%H:%M")
+    else:
+        show_date = date.strftime("%d %B %H:%M")
+
+    return render_template("post.html", title="Просмотр поста", post=post, like=Like,
+                           user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_rec",
+                           prev=Previous, prev_href=f"/post_find/{post.id}/prev_rec", recommend=True,
+                           show_button=me_subscribe, show_date=show_date, where_like="rec", close_href="/recommendations")
+
+
+@app.route('/search/<string:text>/<int:select>', methods=['GET', 'POST'])
+def search(text, select):
+    message = ""
+    users = []
+    if select == 0:
+        form = SearchForm(types=0)
+    else:
+        form = SearchForm(types=select, name=text)
+    form.types.choices = [(0, "не выбрано"), (1, "имени"), (2, "почте")]
+    if request.method == 'POST' or select != 0:
+        db_sess = db_session.create_session()
+        text = form.name.data
+        select = form.types.data
+        if form.types.data == 0:
+            message = "Выберите тип поиска"
+        elif form.types.data == 1:
+            users = db_sess.query(User).filter(User.name.like(f'%{text}%'), User.id != current_user.id).all()
+            message = f"По вашему запросу найдено {len(users)} совпадений."
+        elif form.types.data == 2:
+            users = db_sess.query(User).filter(User.email.like(f'%{text}%'), User.id != current_user.id).all()
+            message = f"По вашему запросу найдено {len(users)} совпадений."
+    for user in users:
+        user.sub = f"{user.id}" not in current_user.subscriptions.split(',')
+    return render_template("search.html", title="Поиск", search=True, form=form, message=message, users=users,
+                           select=select, text=text)
+
+
+@app.route('/subscribe-from-search/<string:text>/<int:select>/<int:id>')
+def subscribe_search(text, select, id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(id)
+    me = db_sess.query(User).get(current_user.id)
+    if f"{me.id}" not in user.subscribers.split(','):
+        me.subscriptions += f'{user.id},'
+        user.subscribers += f'{me.id},'
+    else:
+        me.subscriptions = me.subscriptions.replace(f'{user.id},', '')
+        user.subscribers = user.subscribers.replace(f'{me.id},', '')
+    db_sess.commit()
+    return redirect(f'/search/{text}/{select}')
 
 
 @app.route('/profile')
@@ -89,11 +246,9 @@ def profile_user(id):
     if current_user.is_authenticated:
         return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
                                num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
-                               image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
                                show_button=me_subscribe)
     return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
-                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
-                           user_image=f'/img/users/{user.id}.jpg')
+                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
 
 
 @app.route('/profile/change', methods=['GET', 'POST'])
@@ -236,8 +391,7 @@ def create_post():
         post.description = form.description.data
         db_sess = db_session.create_session()
         for i in form.themes.data:
-            db_sess = db_session.create_session()
-            post.themes.append(db_sess.query(Theme).filter(Theme.id == i).first())
+            post.themes.append(db_sess.query(Theme).get(i))
         db_sess.add(post)
         db_sess.commit()
         f = form.image.data
@@ -294,32 +448,40 @@ def news_delete(id):
 @app.route('/post_find/<int:id>/<string:where>')
 def post_find(id, where):
     db_sess = db_session.create_session()
-    post = db_sess.query(Post).filter(Post.id == id).first()
-    user = db_sess.query(User).filter(post.user_id == User.id).first()
-    posts_user = db_sess.query(Post).filter(Post.user_id == user.id).all()
-    if where == "next":
-        new_id = posts_user[posts_user.index(post) + 1].id
+    post = db_sess.query(Post).get(id)
+    if "post" in where:
+        user = db_sess.query(User).filter(post.user_id == User.id).first()
+        posts_user = db_sess.query(Post).filter(Post.user_id == user.id).all()
+        if "next" in where:
+            new_id = posts_user[posts_user.index(post) + 1].id
+        else:
+            new_id = posts_user[posts_user.index(post) - 1].id
+        return redirect(f'/post_view/{new_id}')
+    elif "line" in where:
+        posts = list(map(lambda x: x.id, make_line()))
+        if "next" in where:
+            new_id = posts[posts.index(post.id) + 1]
+        else:
+            new_id = posts[posts.index(post.id) - 1]
+        return redirect(f'/line_view/{new_id}')
     else:
-        new_id = posts_user[posts_user.index(post) - 1].id
-    return redirect(f'/post_view/{new_id}')
+        posts = list(map(lambda x: x.id, make_recommendations()))
+        if "next" in where:
+            new_id = posts[posts.index(post.id) + 1]
+        else:
+            new_id = posts[posts.index(post.id) - 1]
+        return redirect(f'/recommendations_view/{new_id}')
 
 
 @app.route('/post_view/<int:id>')
 def post_view(id):
     db_sess = db_session.create_session()
     post = db_sess.query(Post).filter(Post.id == id).first()
-    img = f'/img/posts/{post.id}.jpg'
     user = db_sess.query(User).filter(User.id == post.user_id).first()
     posts_user = db_sess.query(Post).filter(Post.user_id == user.id).all()
-    Previous = True
-    Next = True
-    Like = False
-    if posts_user.index(post) == 0:
-        Previous = False
-    if posts_user.index(post) == len(posts_user) - 1:
-        Next = False
-    if str(current_user.id) in post.likes.split(','):
-        Like = True
+    Previous = posts_user.index(post) != 0
+    Next = posts_user.index(post) != len(posts_user) - 1
+    Like = str(current_user.id) in post.likes.split(',')
     num_likes = len(post.likes.split(',')) - 1
     me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     date = post.publication_date
@@ -332,14 +494,15 @@ def post_view(id):
     else:
         show_date = date.strftime("%d %B %H:%M")
 
-    return render_template("post.html", title="Просмотр поста", post=post, image_post=img,
-                           image=f'/img/users/{current_user.id}.jpg', user_image=f'/img/users/{user.id}.jpg',
-                           user=user, likes=num_likes, next=Next, like=Like,
-                           prev=Previous, show_button=me_subscribe, show_date=show_date)
+    return render_template("post.html", title="Просмотр поста", post=post, like=Like,
+                           user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_post",
+                           prev=Previous, prev_href=f"/post_find/{post.id}/prev_post",
+                           show_button=me_subscribe, show_date=show_date, where_like="post",
+                           close_href=f"/profile/{post.user_id}")
 
 
-@app.route('/like/<int:id>')
-def like(id):
+@app.route('/like/<int:id>/<string:where>')
+def like(id, where):
     db_sess = db_session.create_session()
     post = db_sess.query(Post).filter(Post.id == id).first()
     if str(current_user.id) in post.likes.split(','):
@@ -347,15 +510,19 @@ def like(id):
     else:
         post.likes += f'{current_user.id},'
     db_sess.commit()
-    return redirect(f'/post_view/{id}')
+    if where == "post":
+        return redirect(f'/post_view/{id}')
+    if where == "line":
+        return redirect(f'/line_view/{id}')
+    return redirect(f'/recommendations_view/{id}')
 
 
 @app.route('/subscribe/<string:typ>/<int:id>')
 def subscribe(typ, id):
     db_sess = db_session.create_session()
-    if typ == "profile":
+    if typ == "profile" or typ == "search":
         user = db_sess.query(User).get(id)
-    elif typ == "post":
+    else:
         post = db_sess.query(Post).get(id)
         user = db_sess.query(User).get(post.user_id)
     me = db_sess.query(User).get(current_user.id)
@@ -368,7 +535,14 @@ def subscribe(typ, id):
     db_sess.commit()
     if typ == "profile":
         return redirect(f'/profile/{id}')
-    return redirect(f'/post_view/{post.id}')
+    elif typ == "post":
+        return redirect(f'/post_view/{post.id}')
+    elif typ == "rec":
+        return redirect("/recommendations")
+    elif typ == "line":
+        return redirect('/')
+    elif typ == "search":
+        return redirect('/search')
 
 
 @app.route('/subscribe-from-subs/<string:typ>/<int:from_id>/<int:id>')
@@ -384,17 +558,16 @@ def subscribe_subs(typ, from_id, id):
         user.subscribers = user.subscribers.replace(f'{me.id},', '')
     db_sess.commit()
     if typ == "subscribers":
-        return redirect(f"/view_users/{ from_id }/subscribers")
-    return redirect(f'/view_users/{ from_id }/subscriptions')
+        return redirect(f"/view_users/{from_id}/subscribers")
+    return redirect(f'/view_users/{from_id}/subscriptions')
 
 
 @app.route('/view_users/<int:id>/<string:typ>', methods=['GET', 'POST'])
 def view_users(id, typ):
-
     db_sess = db_session.create_session()
-    form = SortForm(sorting=0)
+    form = SortForm()
     form.sorting.choices = [(0, "Не выбрано"), (1, "По имени"), (2, "По возрасту"), (3, "По кол-ву подписчиков"),
-                             (4, "По кол-ву подписок")]
+                            (4, "По кол-ву подписок")]
     user = db_sess.query(User).get(id)
     other = current_user.id != id
     sl = {"subscribers": f"Подписчики {user.name}",

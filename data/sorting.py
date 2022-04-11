@@ -1,6 +1,7 @@
-from wtforms import Form, SelectField, SubmitField
+from flask_wtf import FlaskForm
+from wtforms import SelectField, SubmitField
 
 
-class SortForm(Form):
+class SortForm(FlaskForm):
     sorting = SelectField(u'Сортировка по:', coerce=int)
     submit = SubmitField('Сортировать')

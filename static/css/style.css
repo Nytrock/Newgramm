@@ -461,3 +461,46 @@ textarea.form-control{
 .sort-btn{
     margin-top: 10px;
 }
+
+.search {
+    margin-left: 285px;
+    margin-top: 20px;
+}
+
+.text-search{
+    font-size: 20px;
+    margin-top: 15px;
+}
+
+.search-field{
+    height: 30px;
+    width: 300px;
+    position: absolute;
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
+.search-btn{
+    position: absolute;
+    height: 40px;
+    width: 100px;
+    margin-left: -20px;
+    text-align: center;
+    margin-top: 75px;
+}
+
+.search-btn-div{
+    position: absolute;
+}
+
+.search-message{
+    width: 1100px;
+    text-align: center;
+    display: block;
+    margin-bottom: 50px;
+}
+
+.search-block{
+    width: 500px;
+    margin-left: -100px;
+}
