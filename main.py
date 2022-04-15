@@ -20,6 +20,7 @@ from data.search import SearchForm
 from data.API import user_resources
 from data.API import post_resources
 from data.API import comment_resources
+from config import WHOOSH_ENABLED
 
 app = Flask(__name__)
 api = Api(app)
@@ -761,5 +762,8 @@ if __name__ == '__main__':
     api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment_id>')
     api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
 
+    if WHOOSH_ENABLED:
+        import flask.ext.whooshalchemy as whooshalchemy
+        whooshalchemy.whoosh_index(app, Post)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
