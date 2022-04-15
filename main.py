@@ -20,7 +20,7 @@ from data.search import SearchForm
 from data.API import user_resources
 from data.API import post_resources
 from data.API import comment_resources
-from config import WHOOSH_ENABLED
+import psycopg2
 
 app = Flask(__name__)
 api = Api(app)
@@ -28,6 +28,9 @@ global_init("db/Newgramm.db")
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+DATABASE_URL = os.environ['db/NewGramm.db']
+
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
 @login_manager.user_loader
@@ -761,9 +764,5 @@ if __name__ == '__main__':
     api.add_resource(comment_resources.CommentsListResource, '/api/comments')
     api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment_id>')
     api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
-
-    if WHOOSH_ENABLED:
-        import flask.ext.whooshalchemy as whooshalchemy
-        whooshalchemy.whoosh_index(app, Post)
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
