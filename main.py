@@ -28,7 +28,7 @@ global_init("db/Newgramm.db")
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
-DATABASE_URL = os.environ['DATABASE_URL']
+DATABASE_URL = os.environ['db/NewGramm.db']
 
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
