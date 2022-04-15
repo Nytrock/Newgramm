@@ -21,6 +21,7 @@ class ChangeForm(FlaskForm):
     list_ = []
     for i in result:
         list_.append((str(i.id), i.name))
+    list_.sort()
     themes = SelectMultipleField(u'Какие темы нравятся (для убирания выделения сначала зажмите ctrl)',
                                  choices=list_)
     image = FileField(u'Фото профиля', validators=[FileAllowed(['jpg', 'png'])])

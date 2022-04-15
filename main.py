@@ -10,6 +10,7 @@ from data.db_session import global_init
 from data.user_model import User
 from data.theme_model import Theme
 from data.post_model import Post
+from data.comment_model import Comment
 from data.register import RegisterForm
 from data.login import LoginForm
 from data.change import ChangeForm
@@ -18,6 +19,7 @@ from data.sorting import SortForm
 from data.search import SearchForm
 from data.API import user_resources
 from data.API import post_resources
+from data.API import comment_resources
 
 app = Flask(__name__)
 api = Api(app)
@@ -47,13 +49,15 @@ def make_line():
             post.like = str(user.id) in post.likes.split(',')
             date = post.publication_date
             today = datetime.datetime.now()
-            yesterday = post.publication_date - datetime.timedelta(days=1)
+            yesterday = today - datetime.timedelta(days=1)
             if date.year == today.year and date.month == today.month and date.day == today.day:
                 post.date = "Сегодня " + date.strftime("%H:%M")
             elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
                 post.date = "Вчера " + date.strftime("%H:%M")
             else:
                 post.date = date.strftime("%d %B %H:%M")
+            comments = db_sess.query(Comment).filter(Comment.post_id == post.id).all()
+            post.com = len(comments)
             final_posts.append(post)
     final_posts.sort(key=lambda x: x.publication_date, reverse=True)
     return final_posts
@@ -76,10 +80,22 @@ def line():
     return render_template("line.html", title="Лента", line=True, posts=posts, form=form)
 
 
-@app.route('/line_view/<int:id>')
+@app.route('/line_view/<int:id>', methods=['POST', 'GET'])
 def line_view(id):
     posts = list(map(lambda x: x.id, make_line()))
     db_sess = db_session.create_session()
+    sorting = SortForm()
+    sorting.sorting.choices = [(0, "Не выбрано"), (1, "Сначала новые"), (2, "Сначала старые")]
+    if request.method == "POST":
+        if request.form.get("comment") != '' and request.form.get("comment") is not None:
+            new_comment = Comment()
+            new_comment.user_id = current_user.id
+            new_comment.post_id = id
+            new_comment.text = request.form.get("comment")
+            new_comment.create_date = datetime.datetime.now()
+            db_sess.add(new_comment)
+            db_sess.commit()
+
     post = db_sess.query(Post).get(id)
     index = posts.index(id)
     user = db_sess.query(User).filter(User.id == post.user_id).first()
@@ -90,19 +106,39 @@ def line_view(id):
     me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     date = post.publication_date
     today = datetime.datetime.now()
-    yesterday = post.publication_date - datetime.timedelta(days=1)
+    yesterday = today - datetime.timedelta(days=1)
     if date.year == today.year and date.month == today.month and date.day == today.day:
         show_date = "Сегодня " + date.strftime("%H:%M")
     elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
         show_date = "Вчера " + date.strftime("%H:%M")
     else:
         show_date = date.strftime("%d %B %H:%M")
+    final_comments = []
+    if post.enable_comments:
+        comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
+        for comment in comments:
+            comment.user = db_sess.query(User).get(comment.user_id)
+            date = comment.create_date
+            if date.year == today.year and date.month == today.month and date.day == today.day:
+                comment.show_date = "Сегодня " + date.strftime("%H:%M")
+            elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+                comment.show_date = "Вчера " + date.strftime("%H:%M")
+            else:
+                comment.show_date = date.strftime("%d %B %H:%M")
+            final_comments.append(comment)
+
+    if request.method == "POST":
+        if sorting.sorting.data == 1:
+            final_comments.sort(key=lambda x: x.create_date, reverse=True)
+        elif sorting.sorting.data == 2:
+            final_comments.sort(key=lambda x: x.create_date)
 
     return render_template("post.html", title="Просмотр поста", post=post, like=Like,
                            user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_line",
                            prev=Previous, prev_href=f"/post_find/{post.id}/prev_line",
                            show_button=me_subscribe, show_date=show_date, where_like="line",
-                           close_href="/", line=True)
+                           close_href="/", line=True, comments=final_comments,
+                           enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
 def make_recommendations():
@@ -123,13 +159,15 @@ def make_recommendations():
             post.like = str(user.id) in post.likes.split(',')
             date = post.publication_date
             today = datetime.datetime.now()
-            yesterday = post.publication_date - datetime.timedelta(days=1)
+            yesterday = today - datetime.timedelta(days=1)
             if date.year == today.year and date.month == today.month and date.day == today.day:
                 post.date = "Сегодня " + date.strftime("%H:%M")
             elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
                 post.date = "Вчера " + date.strftime("%H:%M")
             else:
                 post.date = date.strftime("%d %B %H:%M")
+            comments = db_sess.query(Comment).filter(Comment.post_id == post.id).all()
+            post.com = len(comments)
             final_posts.append(post)
 
     final_posts.sort(key=lambda x: (x.connection, x.publication_date), reverse=True)
@@ -145,10 +183,22 @@ def recommendations():
     return render_template("recommendations.html", title="Рекомендации", posts=posts, recommend=True)
 
 
-@app.route('/recommendations_view/<int:id>')
+@app.route('/recommendations_view/<int:id>', methods=['POST', 'GET'])
 def recommendations_view(id):
     posts = list(map(lambda x: x.id, make_recommendations()))
     db_sess = db_session.create_session()
+    sorting = SortForm()
+    sorting.sorting.choices = [(0, "Не выбрано"), (1, "Сначала новые"), (2, "Сначала старые")]
+    if request.method == "POST":
+        if request.form.get("comment") != '' and request.form.get("comment") is not None:
+            new_comment = Comment()
+            new_comment.user_id = current_user.id
+            new_comment.post_id = id
+            new_comment.text = request.form.get("comment")
+            new_comment.create_date = datetime.datetime.now()
+            db_sess.add(new_comment)
+            db_sess.commit()
+
     post = db_sess.query(Post).get(id)
     index = posts.index(id)
     user = db_sess.query(User).filter(User.id == post.user_id).first()
@@ -159,18 +209,39 @@ def recommendations_view(id):
     me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     date = post.publication_date
     today = datetime.datetime.now()
-    yesterday = post.publication_date - datetime.timedelta(days=1)
+    yesterday = today - datetime.timedelta(days=1)
     if date.year == today.year and date.month == today.month and date.day == today.day:
         show_date = "Сегодня " + date.strftime("%H:%M")
     elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
         show_date = "Вчера " + date.strftime("%H:%M")
     else:
         show_date = date.strftime("%d %B %H:%M")
+    final_comments = []
+    if post.enable_comments:
+        comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
+        for comment in comments:
+            comment.user = db_sess.query(User).get(comment.user_id)
+            date = comment.create_date
+            if date.year == today.year and date.month == today.month and date.day == today.day:
+                comment.show_date = "Сегодня " + date.strftime("%H:%M")
+            elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+                comment.show_date = "Вчера " + date.strftime("%H:%M")
+            else:
+                comment.show_date = date.strftime("%d %B %H:%M")
+            final_comments.append(comment)
+
+    if request.method == "POST":
+        if sorting.sorting.data == 1:
+            final_comments.sort(key=lambda x: x.create_date, reverse=True)
+        elif sorting.sorting.data == 2:
+            final_comments.sort(key=lambda x: x.create_date)
 
     return render_template("post.html", title="Просмотр поста", post=post, like=Like,
                            user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_rec",
                            prev=Previous, prev_href=f"/post_find/{post.id}/prev_rec", recommend=True,
-                           show_button=me_subscribe, show_date=show_date, where_like="rec", close_href="/recommendations")
+                           show_button=me_subscribe, show_date=show_date, where_like="rec",
+                           close_href="/recommendations", comments=final_comments,
+                           enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
 @app.route('/search/<string:text>/<int:select>', methods=['GET', 'POST'])
@@ -186,16 +257,20 @@ def search(text, select):
         db_sess = db_session.create_session()
         text = form.name.data
         select = form.types.data
+        user_id = 0
+        if current_user.is_authenticated:
+            user_id = current_user.id
         if form.types.data == 0:
             message = "Выберите тип поиска"
         elif form.types.data == 1:
-            users = db_sess.query(User).filter(User.name.like(f'%{text}%'), User.id != current_user.id).all()
+            users = db_sess.query(User).filter(User.name.like(f'%{text}%'), User.id != user_id).all()
             message = f"По вашему запросу найдено {len(users)} совпадений."
         elif form.types.data == 2:
-            users = db_sess.query(User).filter(User.email.like(f'%{text}%'), User.id != current_user.id).all()
+            users = db_sess.query(User).filter(User.email.like(f'%{text}%'), User.id != user_id).all()
             message = f"По вашему запросу найдено {len(users)} совпадений."
-    for user in users:
-        user.sub = f"{user.id}" not in current_user.subscriptions.split(',')
+    if current_user.is_authenticated:
+        for user in users:
+            user.sub = f"{user.id}" not in current_user.subscriptions.split(',')
     return render_template("search.html", title="Поиск", search=True, form=form, message=message, users=users,
                            select=select, text=text)
 
@@ -224,9 +299,11 @@ def profile():
         num_subscribers = len(current_user.subscribers.split(',')) - 1
         posts = db_sess.query(Post).filter(Post.user_id == current_user.id).all()
         num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
+        num_comments = {post.id: len(db_sess.query(Comment).filter(Comment.post_id == post.id).all()) for post in posts}
         return render_template("profile.html", title="Профиль", num_subscriptions=num_subscriptions,
-                               num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
-    return render_template("profile.html", title="Профиль")
+                               num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
+                               comments=num_comments)
+    return render_template("profile.html", title="Профиль", num_subscriptions=-1)
 
 
 @app.route('/profile/<int:id>')
@@ -241,14 +318,16 @@ def profile_user(id):
     posts = db_sess.query(Post).filter(Post.user_id == id).all()
     num_likes = {post.id: len(post.likes.split(',')) - 1 for post in posts}
     me_subscribe = current_user.is_authenticated
+    num_comments = {post.id: len(db_sess.query(Comment).filter(Comment.post_id == post.id).all()) for post in posts}
     if me_subscribe:
         me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     if current_user.is_authenticated:
         return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
                                num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
-                               show_button=me_subscribe)
+                               show_button=me_subscribe,  comments=num_comments)
     return render_template("profile.html", title="Чужой профиль", num_subscriptions=num_subscriptions,
-                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user)
+                           num_subscribers=num_subscribers, posts=posts, likes=num_likes, user=user,
+                               comments=num_comments)
 
 
 @app.route('/profile/change', methods=['GET', 'POST'])
@@ -351,6 +430,19 @@ def delconfirm_post(id):
                            go=f'/delete_post/{id}', image=f'/img/users/{current_user.id}.jpg')
 
 
+@app.route('/delconfim_comment/<int:id>/<string:way>', methods=['GET', 'POST'])
+def delconfirm_comment(id, way):
+    db_sess = db_session.create_session()
+    comment = db_sess.query(Comment).get(id)
+    if way == "rec":
+        text = "recommendations"
+    else:
+        text = way
+    return render_template("delete.html", text=f"Нажмите сюда, чтобы удалить выбранный комментарий",
+                           title='Подтверждение', link=f'/{text}_view/{comment.post_id}',
+                           go=f'/delete_comment/{id}/{way}')
+
+
 @app.route('/delete_user')
 def delete():
     db_sess = db_session.create_session()
@@ -371,6 +463,8 @@ def delete():
             sub.subscribers = ','.join(list_)
             db_sess.commit()
     posts = db_sess.query(Post).filter(Post.user_id == current_user.id)
+    comments = db_sess.query(Comment).filter(Comment.user_id == user.id)
+    db_sess.delete(comments)
     for post in posts:
         os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         db_sess.delete(post)
@@ -389,6 +483,7 @@ def create_post():
         post.publication_date = datetime.datetime.now()
         post.likes = ''
         post.description = form.description.data
+        post.enable_comments = form.comments.data
         db_sess = db_session.create_session()
         for i in form.themes.data:
             post.themes.append(db_sess.query(Theme).get(i))
@@ -414,10 +509,12 @@ def post_change(id):
     form = PostForm(themes=list_)
     if request.method == "GET":
         form.description.data = post.description
+        form.comments.data = post.enable_comments
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         post = db_sess.query(Post).filter(Post.id == id).first()
         post.description = form.description.data
+        post.enable_comments = form.comments.data
         post.themes.clear()
         for i in form.themes.data:
             post.themes.append(db_sess.query(Theme).filter(Theme.id == i).first())
@@ -431,11 +528,13 @@ def post_change(id):
 
 @app.route('/delete_post/<int:id>', methods=['GET', 'POST'])
 @login_required
-def news_delete(id):
+def post_delete(id):
     db_sess = db_session.create_session()
     post = db_sess.query(Post).filter(Post.id == id, Post.user_id == current_user.id).first()
     if post:
         os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
+        db_sess.delete(comments)
         db_sess.delete(post)
         user = db_sess.query(User).filter(User.id == current_user.id).first()
         user.number_of_posts -= 1
@@ -473,32 +572,81 @@ def post_find(id, where):
         return redirect(f'/recommendations_view/{new_id}')
 
 
-@app.route('/post_view/<int:id>')
+@app.route('/delete_comment/<int:id>/<string:way>')
+def delete_comment(id, way):
+    db_sess = db_session.create_session()
+    comment = db_sess.query(Comment).get(id)
+    post_id = comment.post_id
+    db_sess.delete(comment)
+    db_sess.commit()
+    if way == "rec":
+        text = "recommendations"
+    else:
+        text = way
+    return redirect(f"/{text}_view/{post_id}")
+
+
+@app.route('/post_view/<int:id>', methods=['POST', 'GET'])
 def post_view(id):
     db_sess = db_session.create_session()
+    sorting = SortForm()
+    sorting.sorting.choices = [(0, "Не выбрано"), (1, "Сначала новые"), (2, "Сначала старые")]
+    if request.method == "POST":
+        if request.form.get("comment") != '' and request.form.get("comment") is not None:
+            new_comment = Comment()
+            new_comment.user_id = current_user.id
+            new_comment.post_id = id
+            new_comment.text = request.form.get("comment")
+            new_comment.create_date = datetime.datetime.now()
+            db_sess.add(new_comment)
+            db_sess.commit()
+
     post = db_sess.query(Post).filter(Post.id == id).first()
     user = db_sess.query(User).filter(User.id == post.user_id).first()
     posts_user = db_sess.query(Post).filter(Post.user_id == user.id).all()
     Previous = posts_user.index(post) != 0
     Next = posts_user.index(post) != len(posts_user) - 1
-    Like = str(current_user.id) in post.likes.split(',')
+    Like = True
+    me_subscribe = True
+    if current_user.is_authenticated:
+        Like = str(current_user.id) in post.likes.split(',')
+        me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     num_likes = len(post.likes.split(',')) - 1
-    me_subscribe = f"{current_user.id}" not in user.subscribers.split(',')
     date = post.publication_date
     today = datetime.datetime.now()
-    yesterday = post.publication_date - datetime.timedelta(days=1)
+    yesterday = today - datetime.timedelta(days=1)
     if date.year == today.year and date.month == today.month and date.day == today.day:
         show_date = "Сегодня " + date.strftime("%H:%M")
     elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
         show_date = "Вчера " + date.strftime("%H:%M")
     else:
         show_date = date.strftime("%d %B %H:%M")
+    final_comments = []
+    if post.enable_comments:
+        comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
+        for comment in comments:
+            comment.user = db_sess.query(User).get(comment.user_id)
+            date = comment.create_date
+            if date.year == today.year and date.month == today.month and date.day == today.day:
+                comment.show_date = "Сегодня " + date.strftime("%H:%M")
+            elif date.year == yesterday.year and date.month == yesterday.month and date.day == yesterday.day:
+                comment.show_date = "Вчера " + date.strftime("%H:%M")
+            else:
+                comment.show_date = date.strftime("%d %B %H:%M")
+            final_comments.append(comment)
+
+    if request.method == "POST":
+        if sorting.sorting.data == 1:
+            final_comments.sort(key=lambda x: x.create_date, reverse=True)
+        elif sorting.sorting.data == 2:
+            final_comments.sort(key=lambda x: x.create_date)
 
     return render_template("post.html", title="Просмотр поста", post=post, like=Like,
                            user=user, likes=num_likes, next=Next, next_href=f"/post_find/{post.id}/next_post",
                            prev=Previous, prev_href=f"/post_find/{post.id}/prev_post",
                            show_button=me_subscribe, show_date=show_date, where_like="post",
-                           close_href=f"/profile/{post.user_id}")
+                           close_href=f"/profile/{post.user_id}", comments=final_comments,
+                           enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
 @app.route('/like/<int:id>/<string:where>')
@@ -569,7 +717,9 @@ def view_users(id, typ):
     form.sorting.choices = [(0, "Не выбрано"), (1, "По имени"), (2, "По возрасту"), (3, "По кол-ву подписчиков"),
                             (4, "По кол-ву подписок")]
     user = db_sess.query(User).get(id)
-    other = current_user.id != id
+    other = True
+    if current_user.is_authenticated:
+        other = current_user.id != id
     sl = {"subscribers": f"Подписчики {user.name}",
           "subscriptions": f"Подписки {user.name}"}
     users = []
@@ -591,10 +741,11 @@ def view_users(id, typ):
         elif form.sorting.data == 3:
             users.sort(key=lambda x: len(x.subscriptions.split(',')))
     name = sl[typ]
-    for i in users:
-        i.sub = str(i.id) in current_user.subscriptions.split(',')
+    if current_user.is_authenticated:
+        for i in users:
+            i.sub = str(i.id) in current_user.subscriptions.split(',')
     return render_template("subscribers.html", title=name, users=users,
-                           image=f'/img/users/{current_user.id}.jpg', view=user, type=typ, other=other, form=form)
+                           view=user, type=typ, other=other, form=form)
 
 
 if __name__ == '__main__':
@@ -605,5 +756,9 @@ if __name__ == '__main__':
     api.add_resource(post_resources.PostsListResource, '/api/posts')
     api.add_resource(post_resources.PostsResource, '/api/posts/<int:post_id>')
     api.add_resource(post_resources.PostsDelete, '/api/posts/<int:post_id>/<string:password>')
+
+    api.add_resource(comment_resources.CommentsListResource, '/api/comments')
+    api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment_id>')
+    api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
 
     app.run(port=8080, host='127.0.0.1')

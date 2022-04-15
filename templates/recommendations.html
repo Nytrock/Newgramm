@@ -3,7 +3,7 @@
 {% block content %}
     {% if current_user.is_authenticated %}
         {% if not posts %}
-            <h2 class="text-not-registrer">Упс.. Похоже вы подписаны на КАЖДОГО пользователя, который мог вас заинтересовать</h2>
+            <h2 class="text-not-registrer">Упс.. Похоже вы подписаны на КАЖДОГО пользователя, который мог вас заинтересовать. Или же таких пользователей банально нет.</h2>
         {% endif %}
         {% for post in posts %}
             <div class="post-block-view">
@@ -25,6 +25,13 @@
                     {% endif %}
                     <a href="/recommendations_view/{{ post.id }}" class="href-black"><span class="text-post">{{ post.get_likes }} отметок "Нравится"</span></a>
                     <span class="text-post"> <span class="bold">{{ post.user.name }}</span> {{ post.description }}</span>
+                    {% if not post.enable_comments %}
+                        <span class="line-comment">Комментарии к данному посту отключены.</span>
+                    {% else %}
+                        <span class="line-comment">
+                            <a href="/recommendations_view/{{ post.id }}" class="href-gray">Посмотреть все комментарии ({{ post.com }})</a>
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

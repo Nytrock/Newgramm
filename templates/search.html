@@ -11,17 +11,20 @@
     <span class="search-message"> {{ message }}</span>
     {% for user in users %}
         <div class="search-block">
-            {% if user.sub %}
-                <a class="btn btn-primary btn-subscribe btn-sub-margin"
-                   href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Подписаться </a>
-            {% else %}
-                <a class="btn btn-unsubscribe btn-sub-margin"
-                   href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Отписаться </a>
+            {% if current_user.is_authenticated %}
+                {% if user.sub %}
+                    <a class="btn btn-primary btn-subscribe btn-sub-margin"
+                       href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Подписаться </a>
+                {% else %}
+                    <a class="btn btn-unsubscribe btn-sub-margin"
+                       href="/subscribe-from-search/{{ text }}/{{ select }}/{{ user.id }}"> Отписаться </a>
+                {% endif %}
             {% endif %}
             <a href="/profile/{{ user.id }}" class="href-round-sub">
                 <img src="{{url_for('static', filename='img/users/{}.jpg'.format(user.id))}}" class="round-sub">
             </a>
             <a href="/profile/{{ user.id }}" class="href-black href-sub">{{user.name}}</a>
+            <a href="/profile/{{ user.id }}" class="href-gray href-sub-email">{{user.email}}</a>
         </div>
     {% endfor %}
 {% endblock %}

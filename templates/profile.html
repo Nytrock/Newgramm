@@ -1,35 +1,41 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <img class="profile-image" src="{{url_for('static', filename='/img/users/{}.jpg'.format(user.id))}}">
-    <h1 class="profile-name">{{ user.name }}</h1>
-    {% if show_button and current_user.is_authenticated and user.id != current_user.id %}
-        <a class="btn btn-primary btn-subscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}"> Подписаться </a>
-    {% elif current_user.is_authenticated and user.id != current_user.id %}
-        <a class="btn btn-unsubscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}/post"> Отписаться </a>
-    {% endif %}
-    <h5 class="profile-description">{{ user.description }}</h5>
-    <h5 class="profile-text profile-post">Кол-во постов: {{ user.number_of_posts }}</h5>
-    <a href="/view_users/{{ user.id }}/subscriptions" class="href-black">
-        <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
-    </a>
-    <a href="/view_users/{{ user.id }}/subscribers" class="href-black">
-        <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
-    </a>
-    {% if user.id == current_user.id %}
-        <a class="navbar-brand" href="/profile/change"><img src="static/img/site/Change.png" class="profile-icon first-profile-icon"></a>
-        <a class="navbar-brand" href="/delconfim_user"><img src="static/img/site/Trash.png" class="profile-icon second-profile-icon"></a>
-        <a class="navbar-brand" href="/logout"><img src="static/img/site/Exit.png" class="profile-icon third-profile-icon"></a>
-    {% endif %}
-    <div class="post-profile">
-        {% for post in posts %}
-        <div class="block-profile">
-            <img src="{{url_for('static', filename='img/posts/{}.jpg'.format(post.id))}}" class="image-newgram">
-            <a class="post-inf" href="/post_view/{{ post.id }}">
-                <img src="{{url_for('static', filename='img/site/Like.png')}}" class="inf-image inf-like">
-                <span class="like-font">{{ likes[post.id] }}</span>
-            </a>
+    {% if num_subscriptions != -1 %}
+        <img class="profile-image" src="{{url_for('static', filename='/img/users/{}.jpg'.format(user.id))}}">
+        <h1 class="profile-name">{{ user.name }}</h1>
+        {% if show_button and current_user.is_authenticated and user.id != current_user.id %}
+            <a class="btn btn-primary btn-subscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}"> Подписаться </a>
+        {% elif current_user.is_authenticated and user.id != current_user.id %}
+            <a class="btn btn-unsubscribe btn-subscribe-margin" href="/subscribe/profile/{{ user.id }}/post"> Отписаться </a>
+        {% endif %}
+        <h5 class="profile-description">{{ user.description }}</h5>
+        <h5 class="profile-text profile-post">Кол-во постов: {{ user.number_of_posts }}</h5>
+        <a href="/view_users/{{ user.id }}/subscriptions" class="href-black">
+            <h5 class="profile-text profile-subscription">Подписки: {{ num_subscriptions }}</h5>
+        </a>
+        <a href="/view_users/{{ user.id }}/subscribers" class="href-black">
+            <h5 class="profile-text profile-subscribers">Подписчики: {{ num_subscribers }}</h5>
+        </a>
+        {% if user.id == current_user.id %}
+            <a class="navbar-brand" href="/profile/change"><img src="static/img/site/Change.png" class="profile-icon first-profile-icon"></a>
+            <a class="navbar-brand" href="/delconfim_user"><img src="static/img/site/Trash.png" class="profile-icon second-profile-icon"></a>
+            <a class="navbar-brand" href="/logout"><img src="static/img/site/Exit.png" class="profile-icon third-profile-icon"></a>
+        {% endif %}
+        <div class="post-profile">
+            {% for post in posts %}
+            <div class="block-profile">
+                <img src="{{url_for('static', filename='img/posts/{}.jpg'.format(post.id))}}" class="image-newgram">
+                <a class="post-inf" href="/post_view/{{ post.id }}">
+                    <img src="{{url_for('static', filename='img/site/Like.png')}}" class="inf-image inf-like">
+                    <span class="like-font">{{ likes[post.id] }}</span>
+                    <img src="{{url_for('static', filename='img/site/Com.png')}}" class="inf-image inf-com">
+                    <span class="like-font">{{ comments[post.id] }}</span>
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    {% else %}
+        <h2 class="text-not-registrer">Чтобы получить доступ к своему профилю,войдите или зарегистрируйтесь</h2>
+    {% endif %}
 {% endblock %}

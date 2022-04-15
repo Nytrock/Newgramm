@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import SubmitField, TextAreaField, FileField, SelectMultipleField, validators
+from wtforms import SubmitField, TextAreaField, FileField, SelectMultipleField, validators, BooleanField
 from wtforms.validators import DataRequired
 from . import db_session
 from .theme_model import Theme
@@ -11,6 +11,7 @@ db_session.global_init("db/Newgramm.db")
 class PostForm(FlaskForm):
     description = TextAreaField('Описание поста', validators=[DataRequired(), validators.Length(min=4, max=500)])
     image = FileField(u'Фотография', validators=[FileAllowed(['jpg', 'png'])])
+    comments = BooleanField('Коментарии включены', default=True)
 
     db_sess = db_session.create_session()
     result = db_sess.query(Theme).all()

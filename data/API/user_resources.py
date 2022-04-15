@@ -5,6 +5,7 @@ from flask_restful import Resource, abort
 from werkzeug.security import generate_password_hash
 
 from data import db_session
+from ..comment_model import Comment
 from ..post_model import Post
 from ..theme_model import Theme
 from ..user_model import User
@@ -53,6 +54,8 @@ class UsersDelete(Resource):
                     sub.subscribers = ','.join(list_)
                     session.commit()
             posts = session.query(Post).filter(Post.user_id == user.id)
+            comments = session.query(Comment).filter(Comment.user_id == user.id)
+            session.delete(comments)
             for post in posts:
                 os.remove(os.path.abspath(f'static/img/posts/{post.id}.jpg'))
                 session.delete(post)

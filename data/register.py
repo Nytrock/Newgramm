@@ -24,6 +24,7 @@ class RegisterForm(FlaskForm):
     list_ = []
     for i in result:
         list_.append((str(i.id), i.name))
+    list_.sort()
     themes = SelectMultipleField(u'Какие темы нравятся (для выбора нескольких вариантов или убирания одного зажмите ctrl)',
                                  choices=list_)
 

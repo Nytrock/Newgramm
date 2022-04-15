@@ -24,6 +24,11 @@ textarea.form-control{
     margin-right: auto;
 }
 
+.form-comments{
+    width: 30px;
+    height: 30px;
+}
+
 .form-block {
     margin-left: auto;
     margin-right: auto;
@@ -136,7 +141,6 @@ textarea.form-control{
 .inf-image{
     width: auto;
     height: 40px;
-    margin-top: 150px;
 }
 
 
@@ -202,6 +206,7 @@ textarea.form-control{
     display: block;
     margin-left: 10px;
     padding-top: 10px;
+    margin-bottom: 10px;
 }
 
 .post-bottom{
@@ -235,7 +240,12 @@ textarea.form-control{
     color: white;
     font-size: 40px;
     margin-top: -55px;
-    margin-left: 170px;
+    margin-left: 185px;
+}
+
+.inf-com{
+    margin-left: 135px;
+    margin-top: 10px;
 }
 
 .post-inf{
@@ -248,7 +258,8 @@ textarea.form-control{
 }
 
 .inf-like{
-    margin-left: 120px;
+    margin-left: 135px;
+    margin-top: 135px;
 }
 
 .close-post{
@@ -363,7 +374,7 @@ textarea.form-control{
 .href-sub{
     font-size: 25px;
     position: absolute;
-    margin-top: 25px;
+    margin-top: 20px;
     margin-left: 10px;
 }
 
@@ -503,4 +514,180 @@ textarea.form-control{
 .search-block{
     width: 500px;
     margin-left: -100px;
+}
+
+.comment-block{
+    border-bottom: 0.5px solid gray;
+    border-right: 0.5px solid gray;
+    border-left: 0.5px solid gray;
+    margin-top: -10px;
+}
+
+.comment-round {
+    border-radius: 100px;
+    box-shadow: 0 0 7px #666
+    height: 50px;
+    width: 50px;
+    max-height: 45px;
+    max-width: 45px;
+    min-height: 45px;
+    min-width: 45px;
+    object-fit:cover;
+    margin-top: 10px;
+}
+
+.navbar-name-comment {
+    margin-left: 65px;
+    display: block;
+    position: absolute;
+    margin-top: -37px;
+    color: rgba(0,0,0,.9);
+    font-size: 18px;
+}
+
+.navbar-name-comment:hover{
+    color: rgba(0,0,0,.9);
+    text-decoration: none;
+}
+
+.text-comment{
+    display: block;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.start-comment{
+    border-bottom: 0.5px solid gray;
+    border-right: 0.5px solid gray;
+    border-left: 0.5px solid gray;
+    font-size: 23px;
+    display: block;
+    width: 800px;
+    height: 40px;
+}
+
+.text-start-comment{
+    margin-left: 10px;
+}
+
+.line-comment{
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 17px;
+}
+
+.href-gray{
+    color: gray;
+}
+
+.href-gray:hover{
+    color: #4f4f4f;
+    text-decoration: none;
+}
+
+.input-comment{
+    position: fixed;
+    bottom: 5px;
+    width: 700px;
+    height: 35px;
+    margin-left: 50px;
+}
+
+.comment{
+    position: fixed;
+    height: 50px;
+    width: 800px;
+    margin-left: 155px;
+    background-color: white;
+    bottom: 0;
+    border: 0.5px solid gray;
+}
+
+.img-post-com{
+    height: 35px;
+    width: 35px;
+    position: fixed;
+    bottom: 5px;
+    margin-left: 760px;
+    cursor:pointer;
+    cursor:hand;
+}
+
+.round-comment{
+    border-radius: 100px;
+    height: 40px;
+    width: 40px;
+    max-height: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    min-width: 40px;
+    object-fit:cover;
+}
+
+.comment-high{
+    height: 49px;
+}
+
+.navbar-brand-com {
+    margin-left: 5px;
+    display: block;
+    margin-top: 5px;
+    width: 50px;
+}
+
+.button-com-del{
+    width: 25px;
+    height: auto;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 650px;
+}
+
+.href-sub-email{
+    font-size: 15px;
+    position: absolute;
+    margin-top: 50px;
+    margin-left: 10px;
+}
+
+.comment-sort{
+    position: absolute;
+}
+
+.comment-sort-field{
+    position: absolute;
+    font-size: 20px;
+    margin-top: 5px;
+    margin-left: 120px;
+}
+
+.comment-sort-btn{
+    position: absolute;
+    margin-top: -10px;
+    height: 35px;
+    margin-left: 280px;
+}
+
+.text-not-comment{
+    text-align: center;
+    margin-top: 10px;
+}
+
+.form-themes{
+    height: 200px;
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }

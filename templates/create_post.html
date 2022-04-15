@@ -27,6 +27,15 @@
             {% endfor %}
         </p>
         <p class="form-block">
+            {{ form.comments.label }}<br>
+            {{ form.comments(class="form-control form-comments") }}<br>
+            {% for error in form.comments.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p class="form-block">
             {{ form.themes.label }}<br>
             {{ form.themes(class="form-control form-field") }}<br>
             {% for error in form.themes.errors %}

@@ -15,7 +15,7 @@
             <a class="navbar-name-post" href="/profile/{{ post.user_id }}">
                 {{ user.name }}
             </a>
-            {% if post.user_id != current_user.id %}
+            {% if post.user_id != current_user.id and current_user.is_authenticated %}
                 {% if show_button%}
                     <a class="btn btn-primary btn-subscribe btn-subscribe-post-margin" href="/subscribe/{{ where_like }}/{{ post.id }}"> Подписаться </a>
                 {% else %}
@@ -27,10 +27,12 @@
         <img src="{{url_for('static', filename='/img/posts/{}.jpg'.format(post.id))}}" class="post-view">
         <div class="post-bottom">
             <span class="text-post post_date"> {{ show_date }} </span>
-            {% if current_user.id == post.user_id %}
+            {% if current_user.id == post.user_id or not current_user.is_authenticated %}
                 <img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}">
-                <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>
-                <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
+                {% if current_user.is_authenticated %}
+                    <a href="/change_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Change.png')}}"></a>
+                    <a href="/delconfim_post/{{ post.id }}"><img class="button-post" src="{{url_for('static', filename='/img/site/Trash.png')}}"></a><br>
+                {% endif %}
             {% else %}
                 {% if like %}
                     <a href="/like/{{ post.id }}/{{where_like}}"><img class="button-post" src="{{url_for('static', filename='/img/site/Like_post.png')}}"></a>
@@ -41,6 +43,50 @@
             <span class="text-post">{{ likes }} отметок "Нравится"</span>
             <span class="text-post"> <span class="bold">{{ user.name }}</span> {{ post.description }}</span>
         </div>
+        {% if not enabled_com %}
+            <span>Комментарии к данному посту отключены.</span>
+        {% else %}
+            <span class="start-comment">
+                {% if comments %}
+                    <form method="post" action="" class="comment-sort">
+                        <span class="sort-sub">{{ form.sorting(class="comment-sort-field") }}</span>
+                        <p class="btn">{{ form.submit(type="submit", class="btn btn-primary comment-sort-btn") }}</p>
+                    </form>
+                {% endif %}
+                <span class="text-start-comment">Комментарии: {{ num_com }}</span>
+            </span>
+            {% for comment in comments %}
+                <div class="comment-block">
+                    {% if comment.user_id == current_user.id %}
+                        <a href="/delconfim_comment/{{ comment.id }}/{{ where_like }}">
+                            <img class="button-com-del" src="{{url_for('static', filename='/img/site/Trash.png')}}">
+                        </a>
+                    {% endif %}
+                    <span class="text-post post_date"> {{ comment.show_date }} </span>
+                    <a class="navbar-brand-post" href="/profile/{{ comment.user_id }}">
+                        <img class="comment-round" src="{{url_for('static', filename='/img/users/{}.jpg'.format(comment.user_id))}}">
+                    </a>
+                    <a class="navbar-name-comment" href="/profile/{{ comment.user_id }}">
+                        {{ comment.user.name }}
+                    </a>
+                    <span class="text-comment"> {{ comment.text }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
+    <div class="comment">
+        {% if current_user.is_authenticated %}
+            <a class="navbar-brand-com" href="/profile/{{ current_user.id }}">
+                <img class="round-comment" src="{{url_for('static', filename='/img/users/{}.jpg'.format(current_user.id))}}">
+            </a>
+            <form action="" method="post" id="search">
+                <input type="text" class="input-comment" name="comment" placeholder="Введите комментарий">
+                <img src="{{url_for('static', filename='/img/site/Comment.png')}}" class="img-post-com" onclick="search.submit()">
+            </form>
+        {% else %}
+            <h4 class="text-not-comment">Войдите или зарегистрируйтесь чтобы оставлять комментарии</h4>
+        {% endif %}
+    </div>
+    <div class="comment-high"></div>
 
 {% endblock %}

@@ -32,6 +32,13 @@
                     {% endif %}
                     <a href="/line_view/{{ post.id }}" class="href-black"><span class="text-post">{{ post.get_likes }} отметок "Нравится"</span></a>
                     <span class="text-post"> <span class="bold">{{ post.user.name }}</span> {{ post.description }}</span>
+                    {% if not post.enable_comments %}
+                        <span class="line-comment">Комментарии к данному посту отключены.</span>
+                    {% else %}
+                        <span class="line-comment">
+                            <a href="/line_view/{{ post.id }}" class="href-gray">Посмотреть все комментарии ({{ post.com }})</a>
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
