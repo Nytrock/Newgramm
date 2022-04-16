@@ -470,7 +470,8 @@ def delete():
             db_sess.commit()
     posts = db_sess.query(Post).filter(Post.user_id == current_user.id)
     comments = db_sess.query(Comment).filter(Comment.user_id == user.id)
-    db_sess.delete(comments)
+    for comment in comments:
+        db_sess.delete(comment)
     for post in posts:
         os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         db_sess.delete(post)
