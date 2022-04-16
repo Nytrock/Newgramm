@@ -58,6 +58,24 @@ textarea.form-control{
     object-fit:cover;
 }
 
+.base-round{
+    border-radius: 100px;
+    box-shadow: 0 0 7px #666
+    height: 3.2vw;
+    width: 3.2vw;
+    max-height: 3.2vw;
+    max-width: 3.2vw;
+    min-height: 3.2vw;
+    min-width: 3.2vw;
+    object-fit:cover;
+}
+
+.base-name{
+    display: inline-block;
+    font-size: 1.3vw;
+    margin-top: 10px;
+}
+
 .cancel{
     margin-bottom: 16px;
 }
@@ -428,6 +446,17 @@ textarea.form-control{
 	width: 13vw;
 }
 
+
+.base-title {
+    width: 200px;
+    text-align: center;
+}
+
+
+.header{
+    height: 5vw;
+}
+
 @media screen and (max-width: 1600px) {
     .line-title::after{
         margin-left: -60px;
@@ -444,6 +473,10 @@ textarea.form-control{
     .create-title::after{
         margin-left: -100px;
     }
+
+    .base-image{
+        margin-top: -8px;
+    }
 }
 
 @media screen and (max-width: 1400px) {
@@ -454,6 +487,24 @@ textarea.form-control{
     .create-title::after{
         margin-left: -85px;
     }
+
+    .base-title{
+        margin-top: -15px;
+    }
+
+    .base-image{
+        margin-top: -18px;
+    }
+
+    .logo-base{
+        width: 35px;
+    }
+
+    .Title{
+        margin-left: 35px;
+        margin-top: 9px;
+        font-size: 32px;
+    }
 }
 
 @media screen and (max-width: 1250px) {
@@ -461,19 +512,20 @@ textarea.form-control{
         margin-left: -50px;
     }
 
+    .base-image{
+        margin-top: -25px;
+    }
+
     .create-title::after{
         margin-left: -75px;
     }
+
+
+    .header{
+        height: 65px;
+    }
 }
 
-.header{
-    height: 5vw;
-}
-
-.base-title{
-    width: 200px;
-    text-align: center;
-}
 
 .base-font{
     font-size: 30px;
