@@ -1,12 +1,11 @@
 import datetime
 import os
 
-from flask import Flask, render_template, redirect, request
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from flask_restful import Api, abort
+from flask import render_template, redirect, request
+from flask_login import login_user, login_required, logout_user, current_user
+from flask_restful import abort
 
 from data import db_session
-from data.db_session import global_init
 from data.user_model import User
 from data.theme_model import Theme
 from data.post_model import Post
@@ -17,18 +16,9 @@ from data.change import ChangeForm
 from data.create_post import PostForm
 from data.sorting import SortForm
 from data.search import SearchForm
-from data.API import user_resources
-from data.API import post_resources
-from data.API import comment_resources
 from create_app import create_app
 
-app, api, login_manager = create_app()
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+app = create_app()
 
 
 def make_line():
@@ -745,16 +735,5 @@ def view_users(id, typ):
 
 
 if __name__ == '__main__':
-    api.add_resource(user_resources.UsersListResource, '/api/users')
-    api.add_resource(user_resources.UsersResource, '/api/users/<int:user_id>')
-    api.add_resource(user_resources.UsersDelete, '/api/users/<int:user_id>/<string:password>')
-
-    api.add_resource(post_resources.PostsListResource, '/api/posts')
-    api.add_resource(post_resources.PostsResource, '/api/posts/<int:post_id>')
-    api.add_resource(post_resources.PostsDelete, '/api/posts/<int:post_id>/<string:password>')
-
-    api.add_resource(comment_resources.CommentsListResource, '/api/comments')
-    api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment_id>')
-    api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
