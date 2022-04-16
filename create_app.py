@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_login import LoginManager
 from flask_restful import Api
@@ -12,7 +14,8 @@ def create_app():
     app = Flask(__name__)
     api = Api(app)
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///NewGramm.db'
+    file_path = os.path.join(app.root_path, 'db', 'NewGramm.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + file_path
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['PROPAGATE_EXCEPTIONS'] = True
     global_init("db/Newgramm.db")
