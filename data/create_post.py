@@ -7,8 +7,6 @@ from wtforms.validators import DataRequired
 from . import db_session
 from .theme_model import Theme
 
-file_path = os.path.join(os.path.abspath('.'), 'db', 'NewGramm.db')
-db_session.global_init(file_path)
 
 class PostForm(FlaskForm):
     description = TextAreaField('Описание поста', validators=[DataRequired(), validators.Length(min=4, max=500)])

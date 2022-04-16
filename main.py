@@ -10,13 +10,13 @@ from flask_restful import abort
 
 from data import db_session
 from data.API import user_resources, post_resources, comment_resources
-from data.change import ChangeForm
 from data.comment_model import Comment
 from data.create_post import PostForm
 from data.db_session import global_init
 from data.login import LoginForm
 from data.post_model import Post
 from data.register import RegisterForm
+from data.change import ChangeForm
 from data.search import SearchForm
 from data.sorting import SortForm
 from data.theme_model import Theme
@@ -768,3 +768,8 @@ def view_users(id, typ):
             i.sub = str(i.id) in current_user.subscriptions.split(',')
     return render_template("subscribers.html", title=name, users=users,
                            view=user, type=typ, other=other, form=form)
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
