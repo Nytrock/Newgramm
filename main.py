@@ -86,7 +86,7 @@ def make_line():
     return final_posts
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def line():
     return "hello world"
 
