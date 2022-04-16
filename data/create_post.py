@@ -1,3 +1,5 @@
+import os
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import SubmitField, TextAreaField, FileField, SelectMultipleField, validators, BooleanField
@@ -5,7 +7,8 @@ from wtforms.validators import DataRequired
 from . import db_session
 from .theme_model import Theme
 
-db_session.global_init("db/Newgramm.db")
+file_path = os.path.join(os.path.abspath('../'), 'db', 'NewGramm.db')
+db_session.global_init(file_path)
 
 
 class PostForm(FlaskForm):

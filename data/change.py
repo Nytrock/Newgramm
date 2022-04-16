@@ -1,3 +1,5 @@
+import os
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import SubmitField, StringField, TextAreaField, SelectMultipleField, FileField, IntegerField
@@ -7,7 +9,8 @@ from wtforms.validators import DataRequired
 from .theme_model import Theme
 from . import db_session
 
-db_session.global_init("db/Newgramm.db")
+file_path = os.path.join(os.path.abspath('../'), 'db', 'NewGramm.db')
+db_session.global_init(file_path)
 
 
 class ChangeForm(FlaskForm):
