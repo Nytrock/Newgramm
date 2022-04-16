@@ -9,9 +9,6 @@ from wtforms.validators import DataRequired
 from .theme_model import Theme
 from . import db_session
 
-file_path = os.path.join(os.path.abspath('.'), 'db', 'NewGramm.db')
-db_session.global_init(file_path)
-
 
 class RegisterForm(FlaskForm):
     name = StringField('Ник', validators=[DataRequired(), validators.Length(min=4, max=22)])
