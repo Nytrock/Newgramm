@@ -454,7 +454,6 @@ def delconfirm_comment(id, way):
 def delete():
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == current_user.id).first()
-    logout_user()
     for i in user.subscribers.split(','):
         if i != '':
             sub = db_sess.query(User).get(int(i))
@@ -475,6 +474,7 @@ def delete():
     for post in posts:
         os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         db_sess.delete(post)
+    logout_user()
     db_sess.delete(user)
     db_sess.commit()
     os.remove(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
