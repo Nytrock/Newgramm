@@ -52,9 +52,21 @@ def make_line():
     return final_posts
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def line():
-    return "Hello"
+    form = SortForm()
+    form.sorting.choices = [(0, "Не выбрано"), (1, "По дате выкладывания"), (2, "По популярности")]
+    if current_user.is_authenticated:
+        posts = make_line()
+    else:
+        posts = []
+
+    if request.method == 'POST':
+        if form.sorting.data == 1:
+            posts.sort(key=lambda x: x.publication_date, reverse=True)
+        elif form.sorting.data == 2:
+            posts.sort(key=lambda x: len(x.likes.split(',')), reverse=True)
+    return render_template("line.html", title="Лента", line=True, posts=posts, form=form)
 
 
 @app.route('/line_view/<int:id>', methods=['POST', 'GET'])
