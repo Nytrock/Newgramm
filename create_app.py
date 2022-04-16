@@ -18,6 +18,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + file_path
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['PROPAGATE_EXCEPTIONS'] = True
+    global_init(app.config['SQLALCHEMY_DATABASE_URI'])
     login_manager = LoginManager()
     login_manager.init_app(app)
     api.add_resource(user_resources.UsersListResource, '/api/users')
