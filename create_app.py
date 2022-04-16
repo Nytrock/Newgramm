@@ -13,6 +13,7 @@ def create_app():
     api = Api(app)
     global_init("db/Newgramm.db")
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/NewGramm.db'
     login_manager = LoginManager()
     login_manager.init_app(app)
 
