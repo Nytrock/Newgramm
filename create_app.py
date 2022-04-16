@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_login import LoginManager
 from flask_restful import Api
+from flask_sqlalchemy import SQLAlchemy
 
 from data import db_session
 from data.API import user_resources, post_resources, comment_resources
@@ -13,10 +14,10 @@ from data.user_model import User
 def create_app():
     app = Flask(__name__)
     api = Api(app)
-    global_init("db/Newgramm.db")
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
     file_path = os.path.abspath(os.getcwd()) + "db/NewGramm.db"
-    app.config['SQLALCHEMY_DATABASE_URI'] = file_path
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+file_path
+    global_init("db/Newgramm.db")
     login_manager = LoginManager()
     login_manager.init_app(app)
 
