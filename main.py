@@ -10,17 +10,17 @@ from flask_restful import abort
 
 from data import db_session
 from data.API import user_resources, post_resources, comment_resources
+from data.comment_model import Comment
+from data.create_post import PostForm
 from data.db_session import global_init
 from data.login import LoginForm
+from data.post_model import Post
 from data.register import RegisterForm
 from data.change import ChangeForm
 from data.search import SearchForm
 from data.sorting import SortForm
-from data.comment_model import Comment
-from data.create_post import PostForm
 from data.theme_model import Theme
 from data.user_model import User
-from data.post_model import Post
 
 
 def create_app():
