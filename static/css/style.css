@@ -7,7 +7,7 @@
 
 .Title{
 	font-family: "Title";
-	width: 200px;
+	width: 50px;
 	display: block;
 	margin-left: 50px;
 	margin-top: 10px;
@@ -391,6 +391,15 @@ textarea.form-control{
     margin-left: 800px;
 }
 
+
+.logo-base{
+    width: 50px;
+    height: auto;
+    position: absolute;
+    margin-top: 0.4vw;
+}
+
+
 .choice-title:after{
 	content: "";
 	height: 5%;
@@ -401,33 +410,69 @@ textarea.form-control{
 
 .line-title::after{
 	margin-left: -75px;
-	width: 170px;
+	width: 9vw;
 }
 
 .recommend-title::after{
-	margin-left: -110px;
-	width: 250px;
+	margin-left: -125px;
+	width: 15vw;
 }
 
 .search-title::after{
-	margin-left: -70px;
-	width: 160px;
+	margin-left: -85px;
+	width: 10vw;
 }
 
 .create-title::after{
 	margin-left: -110px;
-	width: 240px;
+	width: 13vw;
+}
+
+@media screen and (max-width: 1600px) {
+    .line-title::after{
+        margin-left: -60px;
+    }
+
+    .recommend-title::after{
+        margin-left: -95px;
+    }
+
+    .search-title::after{
+        margin-left: -75px;
+    }
+
+    .create-title::after{
+        margin-left: -100px;
+    }
+}
+
+@media screen and (max-width: 1400px) {
+    .search-title::after{
+        margin-left: -65px;
+    }
+
+    .create-title::after{
+        margin-left: -85px;
+    }
+}
+
+@media screen and (max-width: 1250px) {
+    .line-title::after{
+        margin-left: -50px;
+    }
+
+    .create-title::after{
+        margin-left: -75px;
+    }
+}
+
+.header{
+    height: 5vw;
 }
 
 .base-title{
     width: 200px;
     text-align: center;
-}
-
-.logo-base{
-    width: 50px;
-    height: auto;
-    position: absolute;
 }
 
 .base-font{
@@ -436,27 +481,24 @@ textarea.form-control{
 }
 
 .logo-line{
-    margin-left: 50px;
-    width: 25px;
-    margin-top: 5px;
+    margin-left: 2.3vw;
+    width: 1.3vw;
 }
 
 .logo-recommend{
-    margin-left: 110px;
-    width: 25px;
-    margin-top: 5px;
+    margin-left: 6vw;
+    width: 1.3vw;
 }
 
 .logo-search{
-    margin-left: 50px;
-    width: 25px;
+    margin-left: 2.4vw;
+    width: 1.3vw;
     margin-top: 10px;
 }
 
 .logo-create{
-    margin-left: 95px;
-    width: 25px;
-    margin-top: 5px;
+    margin-left: 5vw;
+    width: 1.3vw;
 }
 
 .sort-sub{
@@ -690,4 +732,8 @@ textarea.form-control{
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.base-titles{
+    font-size: 1.5vw;
 }

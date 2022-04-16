@@ -18,49 +18,49 @@
           {% if line %}
               <div class="base-title choice-title line-title"><a class="navbar-brand base-font" href="/">
                 <img src="{{url_for('static', filename='img/site/Home.png')}}" class="logo-line logo-base">
-                <h3>Лента</h3>
+                <h3 class="base-titles">Лента</h3>
 
               </a></div>
           {% else %}
               <div class="base-title"><a class="navbar-brand base-font" href="/">
                 <img src="{{url_for('static', filename='img/site/Home.png')}}" class="logo-line logo-base">
-                <h3>Лента</h3>
+                <h3 class="base-titles">Лента</h3>
               </a></div>
           {% endif %}
 
           {% if recommend %}
               <div class="base-title choice-title recommend-title"><a class="navbar-brand base-font" href="/recommendations">
                 <img src="{{url_for('static', filename='img/site/Recomendations.png')}}" class="logo-recommend logo-base">
-                <h3>Рекомендации</h3>
+                <h3 class="base-titles">Рекомендации</h3>
               </a></div>
           {% else %}
               <div class="base-title"><a class="navbar-brand base-font" href="/recommendations">
                 <img src="{{url_for('static', filename='img/site/Recomendations.png')}}" class="logo-recommend logo-base">
-                <h3>Рекомендации</h3>
+                <h3 class="base-titles">Рекомендации</h3>
               </a></div>
           {% endif %}
 
           {% if search %}
               <div class="base-title choice-title search-title"><a class="navbar-brand base-font" href="/search/_/0">
                 <img src="{{url_for('static', filename='img/site/Search.png')}}" class="logo-search logo-base">
-                <h3>Поиск</h3>
+                <h3 class="base-titles">Поиск</h3>
               </a></div>
           {% else %}
               <div class="base-title"><a class="navbar-brand base-font" href="/search/_/0">
                 <img src="{{url_for('static', filename='img/site/Search.png')}}" class="logo-search logo-base">
-                <h3>Поиск</h3>
+                <h3 class="base-titles">Поиск</h3>
               </a></div>
           {% endif %}
 
           {% if create %}
               <div class="base-title choice-title create-title"><a class="navbar-brand base-font" href="/create_post">
                 <img src="{{url_for('static', filename='img/site/Add-post.png')}}" class="logo-create logo-base">
-                <h3>Создать пост</h3>
+                <h3 class="base-titles">Создать пост</h3>
               </a></div>
           {% else %}
               <div class="base-title"><a class="navbar-brand base-font" href="/create_post">
                 <img src="{{url_for('static', filename='img/site/Add-post.png')}}" class="logo-create logo-base">
-                <h3>Создать пост</h3>
+                <h3 class="base-titles">Создать пост</h3>
               </a></div>
           {% endif %}
         {% if current_user.is_authenticated %}

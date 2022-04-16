@@ -9,6 +9,7 @@ from flask_restful import Api
 from flask_restful import abort
 
 from data import db_session
+from data.API import user_resources, post_resources, comment_resources
 from data.db_session import global_init
 from data.user_model import User
 
@@ -22,6 +23,18 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 global_init(file_path)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+api.add_resource(user_resources.UsersListResource, '/api/users')
+api.add_resource(user_resources.UsersResource, '/api/users/<int:user_id>')
+api.add_resource(user_resources.UsersDelete, '/api/users/<int:user_id>/<string:password>')
+
+api.add_resource(post_resources.PostsListResource, '/api/posts')
+api.add_resource(post_resources.PostsResource, '/api/posts/<int:post_id>')
+api.add_resource(post_resources.PostsDelete, '/api/posts/<int:post_id>/<string:password>')
+
+api.add_resource(comment_resources.CommentsListResource, '/api/comments')
+api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment_id>')
+api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
 
 
 @login_manager.user_loader
@@ -754,3 +767,7 @@ def view_users(id, typ):
             i.sub = str(i.id) in current_user.subscriptions.split(',')
     return render_template("subscribers.html", title=name, users=users,
                            view=user, type=typ, other=other, form=form)
+
+
+if __name__ == '__main__':
+    app.run(port=8080, host='127.0.0.1')
