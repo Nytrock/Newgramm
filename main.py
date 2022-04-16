@@ -88,19 +88,7 @@ def make_line():
 
 @app.route('/', methods=['GET', 'POST'])
 def line():
-    form = SortForm()
-    form.sorting.choices = [(0, "Не выбрано"), (1, "По дате выкладывания"), (2, "По популярности")]
-    if current_user.is_authenticated:
-        posts = make_line()
-    else:
-        posts = []
-
-    if request.method == 'POST':
-        if form.sorting.data == 1:
-            posts.sort(key=lambda x: x.publication_date, reverse=True)
-        elif form.sorting.data == 2:
-            posts.sort(key=lambda x: len(x.likes.split(',')), reverse=True)
-    return render_template("line.html", title="Лента", line=True, posts=posts, form=form)
+    return "hello world"
 
 
 @app.route('/line_view/<int:id>', methods=['POST', 'GET'])
@@ -769,7 +757,3 @@ def view_users(id, typ):
             i.sub = str(i.id) in current_user.subscriptions.split(',')
     return render_template("subscribers.html", title=name, users=users,
                            view=user, type=typ, other=other, form=form)
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
