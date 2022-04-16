@@ -1,16 +1,34 @@
 import datetime
 import os
 
+from flask import Flask
 from flask import render_template, redirect, request
+from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_restful import Api
 from flask_restful import abort
 
 from data import db_session
+from data.db_session import global_init
 from data.user_model import User
-from create_app import create_app
+
+app = Flask(__name__)
+api = Api(app)
+app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+file_path = os.path.join(app.root_path, 'db', 'NewGramm.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + file_path
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['PROPAGATE_EXCEPTIONS'] = True
+global_init(file_path)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-app = create_app()
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
 
 from data.comment_model import Comment
 from data.create_post import PostForm
