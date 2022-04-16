@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_login import LoginManager
 from flask_restful import Api
@@ -13,7 +15,8 @@ def create_app():
     api = Api(app)
     global_init("db/Newgramm.db")
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////db/NewGramm.db'
+    file_path = os.path.abspath(os.getcwd()) + "db/NewGramm.db"
+    app.config['SQLALCHEMY_DATABASE_URI'] = file_path
     login_manager = LoginManager()
     login_manager.init_app(app)
 
