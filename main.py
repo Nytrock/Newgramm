@@ -769,3 +769,7 @@ def view_users(id, typ):
             i.sub = str(i.id) in current_user.subscriptions.split(',')
     return render_template("subscribers.html", title=name, users=users,
                            view=user, type=typ, other=other, form=form)
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
