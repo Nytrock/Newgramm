@@ -20,17 +20,9 @@ from data.search import SearchForm
 from data.API import user_resources
 from data.API import post_resources
 from data.API import comment_resources
-import psycopg2
+from create_app import create_app
 
-app = Flask(__name__)
-api = Api(app)
-global_init("db/Newgramm.db")
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-login_manager = LoginManager()
-login_manager.init_app(app)
-DATABASE_URL = os.environ['DATABASE_URL']
-
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+app, api, login_manager = create_app()
 
 
 @login_manager.user_loader
