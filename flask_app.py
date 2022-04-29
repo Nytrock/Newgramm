@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_restful import Api
 from flask_restful import abort
+from werkzeug.security import generate_password_hash
 
 from data import db_session
 from data.API import user_resources, post_resources, comment_resources
@@ -398,13 +399,13 @@ def registration():
             description=form.description.data,
             age=form.age.data,
             email=form.email.data,
+            password=generate_password_hash(form.password.data)
         )
         user.subscriptions = ''
         user.subscribers = ''
 
         for i in form.themes.data:
             user.themes.append(db_sess.query(Theme).filter(Theme.id == i).first())
-        user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         f = form.image.data
@@ -555,7 +556,8 @@ def post_delete(id):
     if post:
         os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
-        db_sess.delete(comments)
+        for comment in comments:
+            db_sess.delete(comment)
         db_sess.delete(post)
         user = db_sess.query(User).filter(User.id == current_user.id).first()
         user.number_of_posts -= 1
