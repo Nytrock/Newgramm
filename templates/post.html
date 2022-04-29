@@ -75,7 +75,7 @@
         {% endif %}
     </div>
     <div class="comment">
-        {% if current_user.is_authenticated %}
+        {% if current_user.is_authenticated and enabled_com %}
             <a class="navbar-brand-com" href="/profile/{{ current_user.id }}">
                 <img class="round-comment" src="{{url_for('static', filename='/img/users/{}.jpg'.format(current_user.id))}}">
             </a>

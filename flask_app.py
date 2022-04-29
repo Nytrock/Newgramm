@@ -487,7 +487,10 @@ def delete():
     for comment in comments:
         db_sess.delete(comment)
     for post in posts:
-        os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        try:
+            os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        except:
+            pass
         db_sess.delete(post)
     logout_user()
     db_sess.delete(user)
@@ -554,7 +557,10 @@ def post_delete(id):
     db_sess = db_session.create_session()
     post = db_sess.query(Post).filter(Post.id == id, Post.user_id == current_user.id).first()
     if post:
-        os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        try:
+            os.remove(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        except:
+            pass
         comments = db_sess.query(Comment).filter(Comment.post_id == post.id)
         for comment in comments:
             db_sess.delete(comment)
