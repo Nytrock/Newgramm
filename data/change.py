@@ -1,5 +1,3 @@
-import os
-
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import SubmitField, StringField, TextAreaField, SelectMultipleField, FileField, IntegerField
@@ -10,6 +8,7 @@ from .theme_model import Theme
 from . import db_session
 
 
+# Форма для изменения профиля
 class ChangeForm(FlaskForm):
     name = StringField('Ник', validators=[DataRequired()])
     description = TextAreaField('Описание', validators=[DataRequired()])

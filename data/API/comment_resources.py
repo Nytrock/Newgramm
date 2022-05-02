@@ -9,6 +9,7 @@ from ..comment_model import Comment
 from .comment_reqparse import parser
 
 
+# Поиск комментария
 def abort_if_comment_not_found(comment_id):
     session = db_session.create_session()
     comments = session.query(Comment).get(comment_id)
@@ -16,6 +17,7 @@ def abort_if_comment_not_found(comment_id):
         abort(404, message=f"Comment {comment_id} not found")
 
 
+# Получение одного комментария
 class CommentsResource(Resource):
     def get(self, comment_id):
         abort_if_comment_not_found(comment_id)
@@ -24,6 +26,7 @@ class CommentsResource(Resource):
         return jsonify({'comments': comment.to_dict(only=('user_id', 'post_id', 'text', 'create_date'))})
 
 
+# Удаление комментария (нужен пароль пользователя)
 class CommentsDelete(Resource):
     def delete(self, comment_id, password):
         abort_if_comment_not_found(comment_id)
@@ -37,6 +40,7 @@ class CommentsDelete(Resource):
         return abort(404, message=f"Wrong password, access denied")
 
 
+# Получить все комментарии или создать новый
 class CommentsListResource(Resource):
     def get(self):
         session = db_session.create_session()

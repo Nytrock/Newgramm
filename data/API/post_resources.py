@@ -13,6 +13,7 @@ from ..comment_model import Comment
 from .post_reqparse import parser
 
 
+# Найти пост по айди
 def abort_if_post_not_found(post_id):
     session = db_session.create_session()
     posts = session.query(Post).get(post_id)
@@ -20,6 +21,7 @@ def abort_if_post_not_found(post_id):
         abort(404, message=f"Post {post_id} not found")
 
 
+# Получить один пост
 class PostsResource(Resource):
     def get(self, post_id):
         abort_if_post_not_found(post_id)
@@ -29,6 +31,7 @@ class PostsResource(Resource):
                                                      'themes'))})
 
 
+# Удалить пост (нужен пароль)
 class PostsDelete(Resource):
     def delete(self, post_id, password):
         abort_if_post_not_found(post_id)
@@ -46,6 +49,7 @@ class PostsDelete(Resource):
         return abort(404, message=f"Wrong password, access denied")
 
 
+# Получить все посты или создать новый (нужен пароль)
 class PostsListResource(Resource):
     def get(self):
         session = db_session.create_session()

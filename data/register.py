@@ -1,5 +1,3 @@
-import os
-
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import SubmitField, StringField, PasswordField, TextAreaField, SelectMultipleField, FileField, \
@@ -10,6 +8,7 @@ from .theme_model import Theme
 from . import db_session
 
 
+# Форма регистрации
 class RegisterForm(FlaskForm):
     name = StringField('Ник', validators=[DataRequired(), validators.Length(min=4, max=22)])
     description = TextAreaField('Описание', validators=[DataRequired(), validators.Length(min=4, max=100)])

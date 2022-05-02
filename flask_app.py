@@ -14,6 +14,7 @@ from data.API import user_resources, post_resources, comment_resources
 from data.db_session import global_init
 from data.user_model import User
 
+# Инициализация приложения
 app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -25,6 +26,7 @@ global_init(file_path)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# Инициализация апи
 api.add_resource(user_resources.UsersListResource, '/api/users')
 api.add_resource(user_resources.UsersResource, '/api/users/<int:user_id>')
 api.add_resource(user_resources.UsersDelete, '/api/users/<int:user_id>/<string:password>')
@@ -38,12 +40,14 @@ api.add_resource(comment_resources.CommentsResource, '/api/comments/<int:comment
 api.add_resource(comment_resources.CommentsDelete, '/api/comments/<int:comment_id>/<string:password>')
 
 
+# Загрузка пользователя
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
+# Это находится здесь, потому что для работы всего этого нужен бд, создающийся выше
 from data.comment_model import Comment
 from data.create_post import PostForm
 from data.login import LoginForm
@@ -55,7 +59,7 @@ from data.sorting import SortForm
 from data.theme_model import Theme
 
 
-
+# Создание списка постов в ленте
 def make_line():
     final_posts = []
     db_sess = db_session.create_session()
@@ -84,6 +88,7 @@ def make_line():
     return final_posts
 
 
+# Лента
 @app.route('/', methods=['GET', 'POST'])
 def line():
     form = SortForm()
@@ -101,6 +106,7 @@ def line():
     return render_template("line.html", title="Лента", line=True, posts=posts, form=form)
 
 
+# Просмотр поста из ленты
 @app.route('/line_view/<int:id>', methods=['POST', 'GET'])
 def line_view(id):
     posts = list(map(lambda x: x.id, make_line()))
@@ -162,6 +168,8 @@ def line_view(id):
                            enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
+# Создание списка постов в рекомендациях
+# Список создаётся на основе максимальной схожести предпочтений пользователя и тем поста
 def make_recommendations():
     db_sess = db_session.create_session()
     user = db_sess.query(User).get(current_user.id)
@@ -195,6 +203,7 @@ def make_recommendations():
     return final_posts
 
 
+# Рекомендации
 @app.route('/recommendations')
 def recommendations():
     if current_user.is_authenticated:
@@ -204,6 +213,7 @@ def recommendations():
     return render_template("recommendations.html", title="Рекомендации", posts=posts, recommend=True)
 
 
+# Просмотр поста в рекомендациях
 @app.route('/recommendations_view/<int:id>', methods=['POST', 'GET'])
 def recommendations_view(id):
     posts = list(map(lambda x: x.id, make_recommendations()))
@@ -265,6 +275,7 @@ def recommendations_view(id):
                            enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
+# Поиск
 @app.route('/search/<string:text>/<int:select>', methods=['GET', 'POST'])
 def search(text, select):
     message = ""
@@ -296,6 +307,7 @@ def search(text, select):
                            select=select, text=text)
 
 
+# Подписка из поиска
 @app.route('/subscribe-from-search/<string:text>/<int:select>/<int:id>')
 def subscribe_search(text, select, id):
     db_sess = db_session.create_session()
@@ -311,6 +323,7 @@ def subscribe_search(text, select, id):
     return redirect(f'/search/{text}/{select}')
 
 
+# Профиль пользователя
 @app.route('/profile')
 def profile():
     if current_user.is_authenticated:
@@ -327,6 +340,7 @@ def profile():
     return render_template("profile.html", title="Профиль", num_subscriptions=-1)
 
 
+# Профиль другого пользователя
 @app.route('/profile/<int:id>')
 def profile_user(id):
     if current_user.is_authenticated:
@@ -351,6 +365,7 @@ def profile_user(id):
                            comments=num_comments)
 
 
+# Измененик профиля
 @app.route('/profile/change', methods=['GET', 'POST'])
 def profile_change():
     db_sess = db_session.create_session()
@@ -383,6 +398,7 @@ def profile_change():
                            image=f'/img/users/{current_user.id}.jpg', change=True)
 
 
+# Регистрация
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     form = RegisterForm()
@@ -416,6 +432,7 @@ def registration():
     return render_template("register.html", title="Регистрация", form=form)
 
 
+# Вход
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -429,6 +446,7 @@ def login():
     return render_template("login.html", title="Вход", form=form)
 
 
+# Выход
 @app.route('/logout')
 @login_required
 def logout():
@@ -436,6 +454,7 @@ def logout():
     return redirect("/")
 
 
+# Подтверждение удаления пользователя
 @app.route('/delconfim_user')
 def delconfirm_user():
     return render_template("delete.html", text=f"Нажмите сюда чтобы полностью и "
@@ -444,6 +463,7 @@ def delconfirm_user():
                            image=f'/img/users/{current_user.id}.jpg')
 
 
+# Подтверждение удаления поста
 @app.route('/delconfim_post/<int:id>', methods=['GET', 'POST'])
 def delconfirm_post(id):
     return render_template("delete.html", text=f"Нажмите сюда, чтобы полностью и безвозвратно удалить выбранный пост",
@@ -451,6 +471,7 @@ def delconfirm_post(id):
                            go=f'/delete_post/{id}', image=f'/img/users/{current_user.id}.jpg')
 
 
+# Подтверждение удаления комментария
 @app.route('/delconfim_comment/<int:id>/<string:way>', methods=['GET', 'POST'])
 def delconfirm_comment(id, way):
     db_sess = db_session.create_session()
@@ -464,6 +485,7 @@ def delconfirm_comment(id, way):
                            go=f'/delete_comment/{id}/{way}')
 
 
+# Удаление пользователя
 @app.route('/delete_user')
 def delete():
     db_sess = db_session.create_session()
@@ -499,6 +521,7 @@ def delete():
     return redirect('/')
 
 
+# Создание поста
 @app.route('/create_post', methods=['GET', 'POST'])
 def create_post():
     form = PostForm()
@@ -524,6 +547,7 @@ def create_post():
     return render_template("create_post.html", title="Создать пост", form=form, create=True)
 
 
+# Изменение поста
 @app.route('/change_post/<int:id>', methods=['GET', 'POST'])
 def post_change(id):
     db_sess = db_session.create_session()
@@ -551,6 +575,7 @@ def post_change(id):
     return render_template("create_post.html", title="Изменить пост", form=form, change=True, post=post)
 
 
+# Удаление поста
 @app.route('/delete_post/<int:id>', methods=['GET', 'POST'])
 @login_required
 def post_delete(id):
@@ -573,6 +598,7 @@ def post_delete(id):
     return redirect('/')
 
 
+# Переход со страницы одного поста на другую
 @app.route('/post_find/<int:id>/<string:where>')
 def post_find(id, where):
     db_sess = db_session.create_session()
@@ -601,6 +627,7 @@ def post_find(id, where):
         return redirect(f'/recommendations_view/{new_id}')
 
 
+# Удаление комментария
 @app.route('/delete_comment/<int:id>/<string:way>')
 def delete_comment(id, way):
     db_sess = db_session.create_session()
@@ -615,6 +642,7 @@ def delete_comment(id, way):
     return redirect(f"/{text}_view/{post_id}")
 
 
+# Просмотр поста из профиля пользователя
 @app.route('/post_view/<int:id>', methods=['POST', 'GET'])
 def post_view(id):
     db_sess = db_session.create_session()
@@ -678,6 +706,7 @@ def post_view(id):
                            enabled_com=post.enable_comments, num_com=len(final_comments), form=sorting)
 
 
+# Ставим лайки
 @app.route('/like/<int:id>/<string:where>')
 def like(id, where):
     db_sess = db_session.create_session()

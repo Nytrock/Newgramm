@@ -1,9 +1,9 @@
 import sqlalchemy
-from sqlalchemy import orm
 
 from data.db_session import SqlAlchemyBase
 
 
+# Модель тэга в базе данных
 class Theme(SqlAlchemyBase):
     __tablename__ = 'theme'
 
@@ -11,6 +11,7 @@ class Theme(SqlAlchemyBase):
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
 
 
+# Модель таблицы, связывающей пользователя и тэг
 theme_user_table = sqlalchemy.Table(
     'theme_user',
     SqlAlchemyBase.metadata,
@@ -20,6 +21,7 @@ theme_user_table = sqlalchemy.Table(
                       sqlalchemy.ForeignKey('theme.id'))
 )
 
+# Модель таблицы, связывающей пост и тэг
 theme_post_table = sqlalchemy.Table(
     'theme_post',
     SqlAlchemyBase.metadata,

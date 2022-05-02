@@ -1,5 +1,6 @@
 from flask_restful import reqparse
 
+# Парсер для запросов к пользователям
 parser = reqparse.RequestParser()
 parser.add_argument('name', required=True)
 parser.add_argument('description', required=True)

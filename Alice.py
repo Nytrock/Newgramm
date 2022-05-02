@@ -6,6 +6,7 @@ sessionStorage = {}
 flag = False
 
 
+# Основа навыка Алисы
 @app.route('/post', methods=['POST'])
 def main():
     response = {
@@ -21,10 +22,12 @@ def main():
     return json.dumps(response)
 
 
+# Фунцкия, обрабатывающая ответ пользователя
 def handle_dialog(req, res):
     global flag
     user_id = req['session']['user_id']
 
+    # Начало сессии
     if req['session']['new']:
         sessionStorage[user_id] = {
             'suggests': [
@@ -36,9 +39,13 @@ def handle_dialog(req, res):
         res['response']['text'] = 'Привет! Навык запущен.'
         res['response']['buttons'] = get_suggests(user_id)
         return
+
+    # Конец сессии
     if 'конечно' in req['request']['original_utterance'].lower() and flag:
         res['response']['text'] = 'Хорошого пользования!'
         res['response']['end_session'] = True
+
+    # Первый вопрос задан
     elif "а что это?" in req['request']['original_utterance'].lower() and flag:
         res['response']['text'] = f'''Newgram - это новая социальная сеть с привычным и понятным интерфейсом, широкими возможностями и простыми условиями работы.
                                   В Newgram предусмотрены все возможности для общения, бизнеса, ведения блога, публикации новостей или создания собственного проекта.
@@ -55,6 +62,8 @@ def handle_dialog(req, res):
                 ]
             }
             res['response']['buttons'] = get_suggests(user_id)
+
+    # Второй вопрос задан
     elif "кто это создал?" in req['request']['original_utterance'].lower() and flag:
         res['response'][
             'text'] = 'Эту социальную сеть разработали два программиста из яндекс лицея. Их ники - DTEAA и Nytrock. Интересно?' \
@@ -71,6 +80,8 @@ def handle_dialog(req, res):
                 ]
             }
             res['response']['buttons'] = get_suggests(user_id)
+
+    # Старт предложения перейти на Newgramm
     if 'инстаграм' in req['request']['original_utterance'].lower():
         if req['request']['original_utterance'].lower() == 'инстаграм закрыт.' or req['request'][
             'original_utterance'].lower() == 'инстаграм закрыли.':
@@ -112,6 +123,7 @@ def handle_dialog(req, res):
         return
 
 
+# Созданние кнопочек
 def get_suggests(user_id, flag1=False):
     global flag
     session = sessionStorage[user_id]

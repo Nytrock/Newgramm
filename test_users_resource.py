@@ -1,5 +1,6 @@
 from requests import get, post, delete
 
+# Тестирование апи пользователей
 print(get('http://localhost:8080/api/users').json())
 print(get('http://localhost:8080/api/users/1').json())
 print(get('http://localhost:8080/api/users/2').json())

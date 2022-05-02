@@ -1,5 +1,3 @@
-import os
-
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import SubmitField, TextAreaField, FileField, SelectMultipleField, validators, BooleanField
@@ -8,6 +6,7 @@ from . import db_session
 from .theme_model import Theme
 
 
+# Форма для создания поста
 class PostForm(FlaskForm):
     description = TextAreaField('Описание поста', validators=[DataRequired(), validators.Length(min=4, max=500)])
     image = FileField(u'Фотография', validators=[FileAllowed(['jpg', 'png'])])

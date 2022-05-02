@@ -6,6 +6,7 @@ from sqlalchemy_serializer import SerializerMixin
 from data.db_session import SqlAlchemyBase
 
 
+# Модель комментария
 class Comment(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'comment'
 

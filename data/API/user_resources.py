@@ -13,6 +13,7 @@ from .user_reqparse import parser
 from PIL import Image
 
 
+# Получить пользователя через айди
 def abort_if_user_not_found(user_id):
     session = db_session.create_session()
     users = session.query(User).get(user_id)
@@ -20,10 +21,12 @@ def abort_if_user_not_found(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
+# Сгенерировать хэшированый пароль
 def set_password(password):
     return generate_password_hash(password)
 
 
+# Получить пользователя по айди
 class UsersResource(Resource):
     def get(self, user_id):
         abort_if_user_not_found(user_id)
@@ -33,6 +36,7 @@ class UsersResource(Resource):
                                                     'email', 'subscriptions', 'subscribers'))})
 
 
+# Удалить пользователя (нужен пароль)
 class UsersDelete(Resource):
     def delete(self, user_id, password):
         abort_if_user_not_found(user_id)
@@ -66,6 +70,7 @@ class UsersDelete(Resource):
         return abort(404, message=f"Wrong password, access denied")
 
 
+# Получить всех пользователей или создать нового
 class UsersListResource(Resource):
     def get(self):
         session = db_session.create_session()

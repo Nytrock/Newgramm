@@ -1,5 +1,6 @@
 from requests import get, post, delete
 
+# Тестирование апи комментриев
 print(get('http://localhost:8080/api/comments').json())
 print(post('http://localhost:8080/api/comments', json={'user_id': '1',
                                                        'post_id': "1",
