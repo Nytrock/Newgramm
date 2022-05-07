@@ -13,6 +13,7 @@ from data import db_session
 from data.API import user_resources, post_resources, comment_resources
 from data.db_session import global_init
 from data.user_model import User
+from PIL import Image, ImageDraw
 
 # Инициализация приложения
 app = Flask(__name__)
@@ -425,7 +426,11 @@ def registration():
         db_sess.add(user)
         db_sess.commit()
         f = form.image.data
-        f.save(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
+        if f:
+            f.save(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
+        else:
+            file = Image.open(os.path.join(app.root_path, 'static', 'img', 'site', 'None.png')).convert('RGB')
+            file.save(os.path.join(app.root_path, 'static', 'img', 'users', f'{user.id}.jpg'))
         db_sess.commit()
         login_user(user)
         return redirect('/')
@@ -538,7 +543,11 @@ def create_post():
         db_sess.add(post)
         db_sess.commit()
         f = form.image.data
-        f.save(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        if f:
+            f.save(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
+        else:
+            file = Image.open(os.path.join(app.root_path, 'static', 'img', 'site', 'None.png')).convert('RGB')
+            file.save(os.path.join(app.root_path, 'static', 'img', 'posts', f'{post.id}.jpg'))
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == current_user.id).first()
         user.number_of_posts += 1
@@ -595,7 +604,7 @@ def post_delete(id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/')
+    return redirect(f'/profile/{current_user.id}')
 
 
 # Переход со страницы одного поста на другую
