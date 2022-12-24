@@ -1,0 +1,53 @@
+name: Предложение по улучшению сайта
+description: Напиишите о том, что можно было бы добавить в Newgramm для улучшения его качества и удобства
+labels: "suggestion"
+title: "Предложение по улучшению Newgramm"
+assignees:
+  - nytrock
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо, что помогаете сделать Newgramm лучше!
+        
+  - type: input
+    id: contact
+    attributes:
+      label: Контактная информация
+      description: Как я могу связаться с вами, если мне вдруг понадобятся родробности вашей идеи?
+      placeholder: email@example.com
+    validations:
+      required: false
+  
+  - type: dropdown
+    id: type-of-suggest
+    attributes:
+      label: Тип улучшения
+      description: Какой ампект сайта вы хотите улучшить?
+      options:
+        - Функционал
+        - Оформление сайта
+        - Другое
+    validations:
+      required: true
+      
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Предложение
+      description: Напишите своё предложение по улучшению сайта.
+      placeholder: Писать тут.
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: Обладание техническими знаниями.
+      description: Обладаете ли вы достаточным количеством технических знаний, чтобы, в случае возникновения проблем с реализацией данной идеи, вы могли мне помочь?
+      options:
+        - Да
+        - Нет
+        - Не знаю
+    validations:
+      required: true
