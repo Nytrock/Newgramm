@@ -1,0 +1,64 @@
+name: Отчёт об ошибке
+description: Сообщите об ошибке, с которой вы встретились при работе с Newgramm
+labels: "bug"
+title: "Ошибка в работе Newgramm"
+assignees:
+  - nytrock
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо, что нашли время заполнить этот отчёт об ошибке!
+        
+  - type: input
+    id: contact
+    attributes:
+      label: Контактная информация
+      description: Как я могу связаться с вами, если мне вдруг понадобится дополнительная информация об ошибке?
+      placeholder: email@example.com
+    validations:
+      required: false
+  
+  - type: dropdown
+    id: type-of-error
+    attributes:
+      label: Тип ошибки
+      description: С каким типом ошибки вы встретились?
+      options:
+        - Ошибка в функционале
+        - Ошибка в оформлении сайта
+        - Другое
+    validations:
+      required: true
+      
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Что именно случиось?
+      description: Подробно опишите, какая ошибка произошла.
+      placeholder: Что смотришь, давай, пиши об ошибке.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: how-happened
+    attributes:
+      label: При каких обстоятельствах произошла ?
+      description: Напишите, какие действия вы совершали на сайте, чтобы прийти к данной ошибке.
+      placeholder: Да, это обязательно.
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: В каких браузерах вы встречали эту ошибку?
+      multiple: true
+      options:
+        - Яндекс
+        - Firefox
+        - Chrome
+        - Opera
+        - Microsoft Edge
+    validations:
+      required: true
