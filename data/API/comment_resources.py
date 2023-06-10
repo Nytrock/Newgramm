@@ -23,7 +23,7 @@ class CommentsResource(Resource):
         abort_if_comment_not_found(comment_id)
         session = db_session.create_session()
         comment = session.query(Comment).get(comment_id)
-        return jsonify({'comments': comment.to_dict(only=('user_id', 'post_id', 'text', 'create_date'))})
+        return jsonify({'comment': comment.to_dict(only=('user_id', 'post_id', 'text', 'create_date'))})
 
 
 # Удаление комментария (нужен пароль пользователя)
