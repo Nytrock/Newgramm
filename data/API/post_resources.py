@@ -27,7 +27,7 @@ class PostsResource(Resource):
         abort_if_post_not_found(post_id)
         session = db_session.create_session()
         posts = session.query(Post).get(post_id)
-        return jsonify({'posts': posts.to_dict(only=('user_id', 'description', 'likes', 'publication_date',
+        return jsonify({'post': posts.to_dict(only=('user_id', 'description', 'likes', 'publication_date',
                                                      'themes'))})
 
 
