@@ -54,7 +54,7 @@ class PostsListResource(Resource):
     def get(self):
         session = db_session.create_session()
         posts = session.query(Post).all()
-        return jsonify({'posts': [item.to_dict(only=('user_id', 'description', 'likes', 'publication_date',
+        return jsonify({'posts': [item.to_dict(only=('id', 'user_id', 'description', 'likes', 'publication_date',
                                                      'themes')) for item in posts]})
 
     def post(self):

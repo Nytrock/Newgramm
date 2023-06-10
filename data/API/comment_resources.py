@@ -45,7 +45,7 @@ class CommentsListResource(Resource):
     def get(self):
         session = db_session.create_session()
         comments = session.query(Comment).all()
-        return jsonify({'comments': [item.to_dict(only=('user_id', 'post_id', 'text', 'create_date'))
+        return jsonify({'comments': [item.to_dict(only=('id', 'user_id', 'post_id', 'text', 'create_date'))
                                      for item in comments]})
 
     def post(self):
