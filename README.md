@@ -1,4 +1,4 @@
-<p align="center"><img src="static/img/site/Logo.png" alt="Логотип Newgramm" width="250"></p>
+<p align="center"><img src="Logo.png" alt="Логотип Newgramm" width="256"></p>
 
 # Newgramm
 Newgramm - российская социальная сеть с привычным интерфейсом и широкими возможностями. В России Instagram заблокировали, но не стоит волноваться, 
